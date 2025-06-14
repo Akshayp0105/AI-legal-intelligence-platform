@@ -65,3 +65,7 @@ app.include_router(cases_router, prefix="/api/v1")
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "message": "LexAI API is running"}
+
+@app.get("/api/info")
+async def api_info():
+    return {"name": "LexAI", "version": "1.0.0", "updated": "2025-06-14"}

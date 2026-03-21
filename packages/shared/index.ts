@@ -123,3 +123,34 @@ export function formatCurrency(amount: number): string {
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/** Returns a persistent session ID from sessionStorage, generating one if needed. */
+export function getSessionId(): string {
+  if (typeof window === "undefined") return "";
+  let id = sessionStorage.getItem("lexai_session");
+  if (!id) {
+    id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    sessionStorage.setItem("lexai_session", id);
+  }
+  return id;
+}
+
+/** Hex colors mapped to legal domain values for UI rendering. */
+export const DOMAIN_COLORS_HEX: Record<LegalDomain, string> = {
+  cyber: "#7C3AED",
+  criminal: "#DC2626",
+  corporate: "#1D4ED8",
+  property: "#B45309",
+  family: "#BE185D",
+  consumer: "#047857",
+  labour: "#0369A1",
+  constitutional: "#4F46E5",
+  general: "#6B7280",
+};
+
+/** Hex colors mapped to case status values for badge rendering. */
+export const STATUS_COLORS_HEX: Record<string, string> = {
+  active: "#047857",
+  under_review: "#B45309",
+  closed: "#6B7280",
+};

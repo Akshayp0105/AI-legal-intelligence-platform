@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 from core.database import get_db_session
 from models.user import User, UserRole

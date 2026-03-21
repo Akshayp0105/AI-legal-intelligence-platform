@@ -1,8 +1,5 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
-
-// Layout v1.0.1 - Enhanced navigation
 // ─── NavItem ──────────────────────────────────────────────────────────────────
 function NavItem({ item, currentPath }: { item: { icon: string; label: string; path: string }; currentPath: string }) {
   const isActive =
@@ -181,6 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <a
                 key={item.path}
                 href={item.path}
+                aria-label={item.label}
                 style={{
                   display: "flex", alignItems: "center", gap: "10px",
                   padding: "10px 12px", borderRadius: "10px", textDecoration: "none",

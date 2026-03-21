@@ -39,8 +39,8 @@ export default function PrecedentsPage() {
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
       setResults(data.similar_cases || []);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setIsSearching(false);
     }

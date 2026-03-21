@@ -1,8 +1,8 @@
 // apps/web/components/VoiceButton.tsx
 "use client";
 
-import { useSpeechToText, RecordingState } from "@/hooks/useSpeechToText";
-import { useRef, useEffect } from "react";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { useEffect } from "react";
 
 /** Props for the VoiceButton component. */
 interface VoiceButtonProps {
@@ -30,7 +30,7 @@ export default function VoiceButton({
   } = useSpeechToText({
     language,
     onTranscript,
-    onError: (err) => console.warn("Voice error:", err),
+    onError: () => {},
   });
 
   const isRecording = recordingState === "recording";
@@ -75,7 +75,6 @@ export default function VoiceButton({
             WebkitBackdropFilter: "blur(24px)",
             display: "flex", flexDirection: "column", alignItems: "center", gap: "20px",
             animation: "voiceCardIn 0.4s cubic-bezier(0.34,1.56,0.64,1)",
-          }}>
 
             {/* ── Circular breathing ring + mic icon ─────────── */}
             <div style={{ position: "relative", width: "80px", height: "80px",
@@ -234,20 +233,9 @@ export default function VoiceButton({
           />
 
           <style>{`
-            @keyframes voiceCardIn {
-              from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.95); }
-              to   { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
-            }
             @keyframes spinSlow {
               from { transform: rotate(0deg) scale(${1 + audioLevel / 400}); }
               to   { transform: rotate(360deg) scale(${1 + audioLevel / 400}); }
-            }
-            @keyframes recPulse {
-              0%,100% { opacity:1; transform:scale(1); }
-              50%      { opacity:0.3; transform:scale(0.65); }
-            }
-            @keyframes fadeIn {
-              from { opacity:0; } to { opacity:1; }
             }
           `}</style>
         </>
@@ -255,7 +243,6 @@ export default function VoiceButton({
 
       {/* The mic button itself */}
       <button
-        ref={buttonRef}
         onClick={toggleRecording}
         disabled={disabled}
         aria-label={ariaLabel}
@@ -290,25 +277,6 @@ export default function VoiceButton({
           </svg>
         )}
       </button>
-
-      <style>{`
-        @keyframes ripple {
-          0%   { transform: scale(1); opacity: 1; }
-          100% { transform: scale(1.6); opacity: 0; }
-        }
-        @keyframes pulse-rec {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.4; transform: scale(0.7); }
-        }
-        @keyframes slideUpFade {
-          from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }

@@ -4,17 +4,26 @@ import { useSearchParams } from "next/navigation";
 import { useCaseStore } from "../../store/useCaseStore";
 import ChatInterface from "../../components/ChatInterface";
 import CaseAnalysisCard from "../../components/CaseAnalysisCard";
+import { getSessionId } from "../../../../packages/shared/index";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let id = sessionStorage.getItem("lexai_session");
-  if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("lexai_session", id); }
-  return id;
+interface ApiInfo {
+  name?: string;
+  version?: string;
+  [key: string]: unknown;
 }
 
-function getApiInfo(): Promise<any> {
+interface RestoredMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  analysis?: AnalysisResult;
+  domain?: string;
+  timestamp: Date;
+}
+
+function getApiInfo(): Promise<ApiInfo | null> {
   return fetch(`${API}/api/info`).then(r => r.json()).catch(() => null);
 }
 
@@ -22,7 +31,7 @@ function DashboardContent() {
   const { analysisResult, setAnalysisResult } = useCaseStore();
   const searchParams = useSearchParams();
   const caseId = searchParams.get("case_id");
-  const [initialMessages, setInitialMessages] = useState<any[]>([]);
+  const [initialMessages, setInitialMessages] = useState<RestoredMessage[]>([]);
 
   useEffect(() => {
     if (!caseId) return;
@@ -32,7 +41,7 @@ function DashboardContent() {
       .then(r => r.json())
       .then(data => {
         if (data.messages) {
-          const restored = data.messages.map((m: any) => ({
+          const restored = data.messages.map((m: { id: string; role: string; content: string; analysis?: AnalysisResult; domain?: string; created_at: string }) => ({
             id: m.id,
             role: m.role,
             content: m.content,

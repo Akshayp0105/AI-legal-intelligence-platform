@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useCaseStore } from "../store/useCaseStore";
+import { useCaseStore } from "@/store/useCaseStore";
 import { Scale, BookOpen, AlertCircle, TrendingUp, ChevronDown, ChevronUp, Swords } from "lucide-react";
+
+type AnalysisTab = "overview" | "laws" | "precedents" | "arguments";
 
 /** Displays a tabbed case analysis card with strength gauge, laws, precedents, and arguments. */
 export default function CaseAnalysisCard() {
   const { analysisResult } = useCaseStore();
-  const [activeTab, setActiveTab] = useState<"overview" | "laws" | "precedents" | "arguments">("overview");
+  const [activeTab, setActiveTab] = useState<AnalysisTab>("overview");
   const [expandedPrecedent, setExpandedPrecedent] = useState<number | null>(null);
 
   if (!analysisResult) return null;
@@ -54,7 +56,7 @@ export default function CaseAnalysisCard() {
           {["overview", "laws", "precedents", "arguments"].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab as AnalysisTab)}
               className={`flex-1 text-xs py-1.5 px-2 rounded-md capitalize font-medium transition-colors ${
                 activeTab === tab
                   ? "bg-background text-foreground shadow-sm"

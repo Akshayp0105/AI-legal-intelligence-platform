@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getSessionId, DOMAIN_COLORS_HEX } from "../../../../packages/shared/index";
 
 // ── Types ─────────────────────────────────────────────────
 
@@ -31,24 +32,13 @@ interface Stats {
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-const DOMAIN_COLORS: Record<string, string> = {
-  cyber: "#7C3AED", criminal: "#DC2626", corporate: "#1D4ED8",
-  property: "#B45309", family: "#BE185D", consumer: "#047857",
-  labour: "#0369A1", constitutional: "#4F46E5", general: "#6B7280",
-};
+const DOMAIN_COLORS: Record<string, string> = DOMAIN_COLORS_HEX;
 
 const STATUS_CONFIG = {
   active:       { label: "Active",       bg: "#ECFDF5", color: "#047857", border: "#A7F3D0" },
   under_review: { label: "Under Review", bg: "#FFFBEB", color: "#B45309", border: "#FDE68A" },
   closed:       { label: "Closed",       bg: "#F3F4F6", color: "#6B7280", border: "#E5E7EB" },
 };
-
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let id = sessionStorage.getItem("lexai_session");
-  if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("lexai_session", id); }
-  return id;
-}
 
 // ── Strength gauge ────────────────────────────────────────
 
@@ -180,7 +170,7 @@ function CaseCard({ kase, onOpen, onStatusChange }: {
             background: menuOpen ? "#F3F4F6" : "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#94A3B8", fontSize: "16px", flexShrink: 0,
-          }}>⋯</button>
+          }} aria-label="Case options">⋯</button>
           {menuOpen && (
             <div style={{
               position: "absolute", right: 0, top: "32px", zIndex: 10,
@@ -237,8 +227,8 @@ export default function MyCasesPage() {
       const data = await res.json();
       setCases(data.cases || []);
       setStats(data.stats || { total_cases: 0, active_cases: 0, avg_strength: null });
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setIsLoading(false);
     }
@@ -254,7 +244,7 @@ export default function MyCasesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      setCases(prev => prev.map(c => c.id === caseId ? { ...c, status: status as any } : c));
+      setCases(prev => prev.map(c => c.id === caseId ? { ...c, status: status as "active" | "under_review" | "closed" } : c));
     } catch (e) { console.error("Status update failed", e); }
   };
 
@@ -435,11 +425,6 @@ export default function MyCasesPage() {
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-      `}</style>
     </div>
   );
 }

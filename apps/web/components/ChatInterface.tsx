@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import VoiceButton from "@/components/VoiceButton";
+import { getSessionId, DOMAIN_COLORS_HEX } from "../../../packages/shared/index";
 
-// ChatInterface v1.0.1 - Enhanced UI
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /** Legal act/section reference returned by the analysis API. */
@@ -56,33 +56,13 @@ interface ChatInterfaceProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getSessionId(): string {
-  if (typeof window === "undefined") return "ssr";
-  let id = sessionStorage.getItem("lexai_session");
-  if (!id) {
-    id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    sessionStorage.setItem("lexai_session", id);
-  }
-  return id;
-}
-
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   (typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:8000"
     : "http://localhost:8000");
 
-const DOMAIN_COLORS: Record<string, string> = {
-  cyber: "#7C3AED",
-  criminal: "#DC2626",
-  corporate: "#1D4ED8",
-  property: "#B45309",
-  family: "#BE185D",
-  consumer: "#047857",
-  labour: "#0369A1",
-  constitutional: "#4F46E5",
-  general: "#6B7280",
-};
+const DOMAIN_COLORS: Record<string, string> = DOMAIN_COLORS_HEX;
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -249,11 +229,10 @@ export default function ChatInterface({
       if (finalResult && onAnalysisComplete) {
         onAnalysisComplete(finalResult);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
-      console.error("LexAI Chat Error:", err);
-
-      const isAbort = err.name === "AbortError";
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const isAbort = err instanceof Error && err.name === "AbortError";
       setMessages((prev) => [
         ...prev,
         {
@@ -261,7 +240,7 @@ export default function ChatInterface({
           role: "assistant",
           content: isAbort
             ? "The request timed out. Please try again — the server may be starting up."
-            : `Error: ${err.message}. Make sure the backend is running at ${API_BASE}.`,
+            : `Error: ${errorMessage}. Make sure the backend is running at ${API_BASE}.`,
           timestamp: new Date(),
         },
       ]);
@@ -460,33 +439,7 @@ export default function ChatInterface({
               ))}
             </div>
 
-            <style>{`
-              @keyframes floatOrb {
-                0%, 100% { transform: translate(0, 0) scale(1); }
-                33%       { transform: translate(12px, -16px) scale(1.05); }
-                66%       { transform: translate(-8px, 10px) scale(0.97); }
-              }
-              @keyframes floatSymbol {
-                0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.07; }
-                50%       { transform: translateY(-14px) rotate(6deg); opacity: 0.12; }
-              }
-              @keyframes logoEntrance {
-                from { opacity: 0; transform: scale(0.7) translateY(10px); }
-                to   { opacity: 1; transform: scale(1) translateY(0); }
-              }
-              @keyframes ringPulse {
-                0%, 100% { opacity: 0.5; transform: scale(1); }
-                50%       { opacity: 1; transform: scale(1.04); }
-              }
-              @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(10px); }
-                to   { opacity: 1; transform: translateY(0); }
-              }
-            `}</style>
-          </div>
-        )}
-
-        {/* Messages */}
+            {/* ── Logo mark ────────────────────────────────────────── */}
         {messages.map((msg, idx) => (
           <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: "10px", animation: "fadeUp 0.4s var(--ease-out) both", animationDelay: `${idx * 30}ms` }}>
 
@@ -637,17 +590,6 @@ export default function ChatInterface({
           LexAI can make mistakes. Verify important legal information with a qualified advocate.
         </p>
       </div>
-
-      <style>{`
-        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes scaleIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-        @keyframes badge-pop { 0%{transform:scale(0.8);opacity:0;} 60%{transform:scale(1.06);} 100%{transform:scale(1);opacity:1;} }
-        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.75);} }
-        @keyframes bounce-dot { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
-        @keyframes cursor-blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-      `}</style>
     </div>
   );
 }
@@ -716,12 +658,6 @@ function TypewriterHeadline() {
         borderRadius: "2px",
         animation: "cursorBlink 0.85s step-end infinite",
       }} />
-      <style>{`
-        @keyframes cursorBlink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
-        }
-      `}</style>
     </h2>
   );
 }

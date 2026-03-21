@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FolderOpen, FileText, Clock, TrendingUp } from "lucide-react";
+import { getSessionId, DOMAIN_COLORS_HEX } from "../../../../packages/shared/index";
 
 interface LawSection { act: string; section: string; title: string }
 
@@ -26,24 +27,13 @@ interface Stats {
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-const DOMAIN_COLORS: Record<string, string> = {
-  cyber: "#7C3AED", criminal: "#DC2626", corporate: "#1D4ED8",
-  property: "#B45309", family: "#BE185D", consumer: "#047857",
-  labour: "#0369A1", constitutional: "#4F46E5", general: "#6B7280",
-};
+const DOMAIN_COLORS: Record<string, string> = DOMAIN_COLORS_HEX;
 
 const statusColor: Record<string, string> = {
   active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   under_review: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
   closed: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
 };
-
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let id = sessionStorage.getItem("lexai_session");
-  if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("lexai_session", id); }
-  return id;
-}
 
 export default function CasesPage() {
   const router = useRouter();
@@ -64,8 +54,8 @@ export default function CasesPage() {
       const data = await res.json();
       setCases(data.cases || []);
       setStats(data.stats || { total_cases: 0, active_cases: 0, avg_strength: null });
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setIsLoading(false);
     }

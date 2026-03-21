@@ -5,7 +5,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import text
 from core.logging import get_logger
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:password@localhost:5432/lexaidb")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres@localhost:5432/lexaidb")
 logger = get_logger(__name__)
 
 # Create Async Engine

@@ -1,4 +1,3 @@
-// Case store v1.0.1 - Enhanced state management
 import { create } from 'zustand'
 
 /** Analysis result data structure returned by the legal analysis API. */

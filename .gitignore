@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+.pytest_cache
+venv
+.venv
+env
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build outputs
+dist
+build
+.next
+.out
+
+# Database
+*.db
+*.sqlite
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Alembic
+apps/api/alembic/versions/*.py
+
+# Misc
+*.pid
+*.seed
+*.pid.lock

@@ -1,1 +1,2 @@
-## Legal AI
+## AI LEGAL INTELLIGENCE PLATFORM
+##

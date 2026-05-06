@@ -1,0 +1,20 @@
+APPLICATION FOR INFORMATION UNDER SECTION 6(1) OF THE RTI ACT, 2005
+
+To,
+The Public Information Officer (PIO),
+{{ recipient_name }}
+{{ recipient_address }}
+
+1. Name of the Applicant: {{ sender_name }}
+2. Address: {{ sender_address }}
+3. Particulars of information required:
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+4. Payment details: {{ fee_details | default('Rs. 10/- paid via IPO/DD') }}
+
+Date: {{ date }}
+Signature of Applicant

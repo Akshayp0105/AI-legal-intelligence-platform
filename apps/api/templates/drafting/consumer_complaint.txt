@@ -1,0 +1,19 @@
+BEFORE THE {{ forum_name | default('DISTRICT CONSUMER DISPUTES REDRESSAL COMMISSION') }}
+AT {{ location }}
+
+Complaint Case No. {{ case_number | default('_____') }} of {{ year | default('20__') }}
+
+{{ sender_name }} ... Complainant
+VERSUS
+{{ recipient_name }} ... Opposite Party
+
+COMPLAINT UNDER SECTION 35 OF THE CONSUMER PROTECTION ACT, 2019
+
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+Date: {{ date }}
+Complainant / Advocate

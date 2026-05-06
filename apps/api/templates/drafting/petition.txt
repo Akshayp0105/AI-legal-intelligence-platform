@@ -1,0 +1,19 @@
+IN THE HIGH COURT OF {{ court_name }}
+(Extraordinary Original Jurisdiction)
+
+Writ Petition (Civil/Criminal) No. ______ of 20__
+
+{{ sender_name }} ... Petitioner
+VERSUS
+{{ recipient_name }} ... Respondent
+
+PETITION UNDER ARTICLE {{ article_number | default('226') }} OF THE CONSTITUTION OF INDIA
+
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+Date: {{ date }}
+Advocate for Petitioner

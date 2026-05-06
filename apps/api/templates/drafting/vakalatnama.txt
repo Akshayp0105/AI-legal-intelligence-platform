@@ -1,0 +1,22 @@
+IN THE COURT OF {{ court_name }}
+
+Suit/Case No. ______ of 20__
+
+{{ sender_name }} ... Plaintiff/Petitioner/Complainant
+VERSUS
+{{ recipient_name }} ... Defendant/Respondent/Accused
+
+VAKALATNAMA
+
+I/We, {{ sender_name }}, do hereby appoint and retain {{ advocate_name }} to act and appear for me/us in the above-mentioned case and to conduct and defend the same...
+
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+Date: {{ date }}
+Signature of Client
+Accepted:
+Signature of Advocate

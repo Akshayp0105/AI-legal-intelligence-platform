@@ -1,0 +1,30 @@
+LEGAL NOTICE
+
+Date: {{ date }}
+
+To,
+{{ recipient_name }}
+{{ recipient_address }}
+
+From,
+{{ sender_name }}
+{{ sender_address }}
+
+Subject: {{ subject }}
+
+Sir/Madam,
+
+Under instructions from and on behalf of my client {{ sender_name }}, I hereby serve upon you the following legal notice:
+
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+Please take notice that if you fail to comply with this notice within {{ response_days | default(15) }} days of receipt, my client will be constrained to initiate legal proceedings against you in a competent court of law, entirely at your own risk as to costs and consequences.
+
+Yours faithfully,
+
+__________________
+Advocate

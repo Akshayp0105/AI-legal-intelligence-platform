@@ -1,0 +1,21 @@
+FIRST INFORMATION REPORT
+(Under Section 154 Cr.P.C.)
+
+1. Police Station: {{ police_station }}
+2. Date and Time of Information: {{ date }}
+3. Name and Address of Informant/Complainant:
+   {{ sender_name }}
+   {{ sender_address }}
+4. Name and Address of Accused (if known):
+   {{ accused_details }}
+5. Place of Occurrence: {{ incident_place }}
+6. Date and Time of Occurrence: {{ incident_time }}
+
+7. Details of Information/Complaint:
+{{ facts }}
+
+{{ cause_of_action }}
+
+{{ prayer_clause }}
+
+Signature/Thumb Impression of the Informant

@@ -44,3 +44,4 @@ apps/api/alembic/versions/*.py
 *.pid
 *.seed
 *.pid.lock
+.gemini/

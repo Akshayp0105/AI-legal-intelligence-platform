@@ -33,9 +33,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Placeholder for router registration
-# from api.v1.router import api_router
-# app.include_router(api_router, prefix="/api/v1")
+from api.routes.documents import router as documents_router
+app.include_router(documents_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():

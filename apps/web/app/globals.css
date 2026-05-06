@@ -4,55 +4,47 @@
 
 @layer base {
   :root {
-    --background: 216 60% 98%; /* Light mode bg: slightly off-white blueish */
-    --foreground: 222.2 84% 4.9%;
+    --background: 216 60% 98%;
+    --foreground: 222 84% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 84% 5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    
-    /* Navy Theme colors */
-    --primary: 215 60% 10%; /* #0A1628 is approx hsl(216, 60%, 10%) */
+    --popover-foreground: 222 84% 5%;
+    --primary: 215 60% 10%;
     --primary-foreground: 210 40% 98%;
-    
-    /* Amber Accent */
-    --accent: 43 82% 46%; /* #D4A017 is approx hsl(43, 82%, 46%) */
+    --accent: 43 82% 46%;
     --accent-foreground: 0 0% 100%;
-    
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: 43 82% 46%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 216 60% 10%; /* #0A1628 */
+    --background: 216 60% 10%;
     --foreground: 210 40% 98%;
-    --card: 216 60% 14%; /* slightly lighter navy for cards */
+    --card: 216 60% 14%;
     --card-foreground: 210 40% 98%;
     --popover: 216 60% 14%;
     --popover-foreground: 210 40% 98%;
-    
     --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    
-    --accent: 43 82% 46%; /* Amber */
+    --primary-foreground: 222 47% 11%;
+    --accent: 43 82% 46%;
     --accent-foreground: 0 0% 100%;
-    
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217 33% 18%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --destructive: 0 62.8% 30.6%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
     --ring: 43 82% 46%;
   }
 }
@@ -60,8 +52,11 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

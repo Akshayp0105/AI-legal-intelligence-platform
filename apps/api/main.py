@@ -34,7 +34,9 @@ app.add_middleware(
 )
 
 from api.routes.documents import router as documents_router
+from api.routes.knowledge import router as knowledge_router
 app.include_router(documents_router, prefix="/api/v1")
+app.include_router(knowledge_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():

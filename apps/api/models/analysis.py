@@ -1,8 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 class AnalyzeRequest(BaseModel):
     case_description: str
     documents: List[str] = Field(default_factory=list)
     language: str = "en"
     user_role: str = "public"
+    chat_history: Optional[List[Dict[str, Any]]] = Field(default_factory=list)

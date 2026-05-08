@@ -3,7 +3,7 @@ import json
 import hashlib
 import redis
 import logging
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List, Dict, Any, Optional
 import google.generativeai as genai
 
 from core.prompts import (
@@ -24,7 +24,23 @@ CACHE_TTL = 3600  # 1 hour
 def get_gemini_model():
     return genai.GenerativeModel("gemini-1.5-pro")
 
-async def analyze_case_stream(case_description: str, language: str = "en") -> AsyncGenerator[str, None]:
+async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None) -> AsyncGenerator[str, None]:
+    from core.intent_classifier import classify_intent
+    
+    intent = await classify_intent(case_description, chat_history)
+    
+    if not intent.is_legal_query:
+        yield f"data: {json.dumps({'chunk': 'I am a legal AI assistant. I can only answer questions related to Indian law.'})}\n\n"
+        return
+        
+    if intent.clarification_needed:
+        yield f"data: {json.dumps({'chunk': intent.clarification_question})}\n\n"
+        return
+        
+    if intent.confidence < 0.5:
+        yield f"data: {json.dumps({'chunk': 'I am not entirely sure about the specifics of your query. Could you please rephrase or provide more details?'})}\n\n"
+        return
+
     model = get_gemini_model()
     
     # Check cache first
@@ -60,7 +76,7 @@ async def analyze_case_stream(case_description: str, language: str = "en") -> As
     for issue in issues:
         if issue:
             try:
-                results = qdrant_search(query=issue, top_k=5)
+                results = qdrant_search(query=issue, top_k=5, legal_domain=intent.legal_domain)
                 for res in results:
                     payload = res.get('payload', {})
                     text = payload.get('text', '')

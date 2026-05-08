@@ -12,7 +12,8 @@ def qdrant_search(
     act_name: Optional[str] = None,
     year_from: Optional[int] = None,
     year_to: Optional[int] = None,
-    court: Optional[str] = None
+    court: Optional[str] = None,
+    legal_domain: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Embed the query and perform a semantic search in Qdrant.
@@ -29,6 +30,13 @@ def qdrant_search(
                 qdrant_models.FieldCondition(
                     key="act_name",
                     match=qdrant_models.MatchValue(value=act_name)
+                )
+            )
+        if legal_domain:
+            must_conditions.append(
+                qdrant_models.FieldCondition(
+                    key="domain",
+                    match=qdrant_models.MatchValue(value=legal_domain)
                 )
             )
         if court:

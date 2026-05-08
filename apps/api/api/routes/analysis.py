@@ -8,6 +8,6 @@ router = APIRouter(tags=["Analysis"])
 @router.post("/analysis/analyze")
 async def analyze_endpoint(request: AnalyzeRequest):
     return StreamingResponse(
-        analyze_case_stream(request.case_description, request.language),
+        analyze_case_stream(request.case_description, request.language, request.chat_history),
         media_type="text/event-stream"
     )

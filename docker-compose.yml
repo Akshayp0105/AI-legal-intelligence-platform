@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: ankane/pgvector:v0.5.0 # PostgreSQL 15 + pgvector
@@ -44,6 +42,8 @@ services:
       - ./packages/shared:/packages/shared
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/lexaidb
       - QDRANT_URL=http://qdrant:6333
@@ -65,6 +65,8 @@ services:
       - ./packages/shared:/packages/shared
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:

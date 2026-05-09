@@ -11,7 +11,7 @@ from core.auth import get_current_user
 from models.user import User
 from models.document import Document, DocType
 from services.document_parser import extract_text_from_pdf, extract_text_from_image, detect_document_language
-from services.rag import index_document
+from services.rag_service import index_document
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 

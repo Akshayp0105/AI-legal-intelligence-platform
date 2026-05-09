@@ -260,3 +260,7 @@ async def retrieve_for_domain(
         domain_used=intent.legal_domain,
         retrieval_tiers_used=3 if len(tier1_results) < 2 else (2 if len(tier1_results) < 3 else 1)
     )
+
+def qdrant_search(query: str, top_k: int = 10, **kwargs) -> List[Dict[str, Any]]:
+    """Fallback qdrant_search function for older modules."""
+    return []

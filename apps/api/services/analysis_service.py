@@ -21,13 +21,18 @@ logger = logging.getLogger(__name__)
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 CACHE_TTL = 3600  # 1 hour
 
-def get_gemini_model():
-    return genai.GenerativeModel("gemini-1.5-pro")
+def get_gemini_model(system_instruction: Optional[str] = None):
+    kwargs = {}
+    if system_instruction:
+        kwargs["system_instruction"] = system_instruction
+    return genai.GenerativeModel("gemini-1.5-pro", **kwargs)
 
 async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None) -> AsyncGenerator[str, None]:
     from core.intent_classifier import classify_intent
+    from core.domain_router import get_domain_config, build_qdrant_filter, get_relevant_laws_list
     
     intent = await classify_intent(case_description, chat_history)
+    domain_config = get_domain_config(intent.legal_domain)
     
     if not intent.is_legal_query:
         yield f"data: {json.dumps({'chunk': 'I am a legal AI assistant. I can only answer questions related to Indian law.'})}\n\n"
@@ -41,7 +46,7 @@ async def analyze_case_stream(case_description: str, language: str = "en", chat_
         yield f"data: {json.dumps({'chunk': 'I am not entirely sure about the specifics of your query. Could you please rephrase or provide more details?'})}\n\n"
         return
 
-    model = get_gemini_model()
+    model = get_gemini_model(system_instruction=domain_config.get("prompt_role"))
     
     # Check cache first
     cache_key = f"analysis:{hashlib.sha256(case_description.encode('utf-8')).hexdigest()}:{language}"
@@ -73,10 +78,17 @@ async def analyze_case_stream(case_description: str, language: str = "en", chat_
 
     # Step B: RAG retrieval
     retrieved_context_list = []
+    q_filter = build_qdrant_filter(domain_config)
+    retrieval_top_k = domain_config.get("retrieval_top_k", 5)
+    
     for issue in issues:
         if issue:
             try:
-                results = qdrant_search(query=issue, top_k=5, legal_domain=intent.legal_domain)
+                results = qdrant_search(
+                    query=issue, 
+                    top_k=retrieval_top_k, 
+                    custom_filter=q_filter
+                )
                 for res in results:
                     payload = res.get('payload', {})
                     text = payload.get('text', '')
@@ -90,7 +102,8 @@ async def analyze_case_stream(case_description: str, language: str = "en", chat_
     # Step C: Synthesis
     prompt = MASTER_ANALYSIS_PROMPT.format(
         case_description=case_description,
-        retrieved_context=retrieved_context_str
+        retrieved_context=retrieved_context_str,
+        relevant_laws=get_relevant_laws_list(intent.legal_domain)
     )
 
     try:

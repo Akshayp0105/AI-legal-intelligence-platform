@@ -46,6 +46,7 @@ from api.routes.precedents import router as precedents_router
 from api.routes.strategy import router as strategy_router
 from api.routes.analytics import router as analytics_router
 from api.routes.drafting import router as drafting_router
+from api.routes.feedback import router as feedback_router
 
 app.include_router(documents_router, prefix="/api/v1")
 app.include_router(knowledge_router, prefix="/api/v1")
@@ -54,6 +55,7 @@ app.include_router(precedents_router, prefix="/api/v1/precedents", tags=["preced
 app.include_router(strategy_router, prefix="/api/v1", tags=["strategy"])
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(drafting_router, prefix="/api/v1")
+app.include_router(feedback_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():

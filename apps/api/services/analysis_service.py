@@ -27,11 +27,26 @@ def get_gemini_model(system_instruction: Optional[str] = None):
         kwargs["system_instruction"] = system_instruction
     return genai.GenerativeModel("gemini-1.5-pro", **kwargs)
 
-async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None) -> AsyncGenerator[str, None]:
+async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None, session_id: Optional[str] = None) -> AsyncGenerator[str, None]:
     from core.intent_classifier import classify_intent
     from core.domain_router import get_domain_config, build_qdrant_filter, get_relevant_laws_list
+    from core.memory import ConversationMemoryManager
+    from core.validator import validate_response
+    from core.prompts import PromptBuilder, parse_gemini_response
+    import uuid
+
+    if not session_id:
+        session_id = str(uuid.uuid4())
+
+    memory_manager = ConversationMemoryManager()
+    session = await memory_manager.get_or_create_session(session_id, "unknown")
     
-    intent = await classify_intent(case_description, chat_history)
+    # Classify intent
+    new_intent = await classify_intent(case_description, chat_history)
+    
+    # Handle follow-up domain inheritance
+    intent = await memory_manager.inherit_domain_if_followup(session_id, new_intent, case_description)
+    
     domain_config = get_domain_config(intent.legal_domain)
     
     if not intent.is_legal_query:
@@ -46,7 +61,12 @@ async def analyze_case_stream(case_description: str, language: str = "en", chat_
         yield f"data: {json.dumps({'chunk': 'I am not entirely sure about the specifics of your query. Could you please rephrase or provide more details?'})}\n\n"
         return
 
-    model = get_gemini_model(system_instruction=domain_config.get("prompt_role"))
+    # Extract new entities to case context
+    if intent.entities:
+        await memory_manager.update_case_context(session_id, intent.entities.model_dump())
+
+    sys_prompt = PromptBuilder.build_system_prompt(domain_config, "public", language)
+    model = get_gemini_model(system_instruction=sys_prompt)
     
     # Check cache first
     cache_key = f"analysis:{hashlib.sha256(case_description.encode('utf-8')).hexdigest()}:{language}"
@@ -58,87 +78,69 @@ async def analyze_case_stream(case_description: str, language: str = "en", chat_
     except Exception as e:
         logger.warning(f"Redis cache access failed: {e}")
 
-    # Step 4: Handle language translation to English
-    if language != "en":
-        try:
-            translation_res = model.generate_content(TRANSLATE_TO_ENGLISH_PROMPT.format(text=case_description))
-            case_description = translation_res.text.strip()
-            logger.info("Translated case description to English")
-        except Exception as e:
-            logger.error(f"Translation failed: {e}")
-
-    # Step A: Query expansion - Extract 5 key legal issues
-    try:
-        issues_res = model.generate_content(ISSUE_EXTRACTION_PROMPT.format(case_description=case_description))
-        issues = [i.strip() for i in issues_res.text.split(',')]
-        logger.info(f"Extracted issues: {issues}")
-    except Exception as e:
-        logger.error(f"Issue extraction failed: {e}")
-        issues = [case_description]
-
-    # Step B: RAG retrieval
+    # RAG retrieval
     retrieved_context_list = []
     q_filter = build_qdrant_filter(domain_config)
     retrieval_top_k = domain_config.get("retrieval_top_k", 5)
     
-    for issue in issues:
-        if issue:
-            try:
-                results = qdrant_search(
-                    query=issue, 
-                    top_k=retrieval_top_k, 
-                    custom_filter=q_filter
-                )
-                for res in results:
-                    payload = res.get('payload', {})
-                    text = payload.get('text', '')
-                    if text and text not in retrieved_context_list:
-                        retrieved_context_list.append(text)
-            except Exception as e:
-                logger.error(f"Retrieval failed for issue '{issue}': {e}")
+    # Use context memory if no new entities but there is context
+    search_query = case_description
+    if session.current_case_context:
+        search_query += f" (Context: {json.dumps(session.current_case_context)})"
+        
+    try:
+        results = qdrant_search(
+            query=search_query, 
+            top_k=retrieval_top_k, 
+            custom_filter=q_filter
+        )
+        for res in results:
+            payload = res.get('payload', {})
+            text = payload.get('text', '')
+            if text and text not in retrieved_context_list:
+                retrieved_context_list.append(payload)
+    except Exception as e:
+        logger.error(f"Retrieval failed for issue '{search_query}': {e}")
     
-    retrieved_context_str = "\n\n".join(retrieved_context_list)
-
-    # Step C: Synthesis
-    prompt = MASTER_ANALYSIS_PROMPT.format(
-        case_description=case_description,
-        retrieved_context=retrieved_context_str,
-        relevant_laws=get_relevant_laws_list(intent.legal_domain)
+    # Build prompt with memory context
+    mem_context = await memory_manager.get_context_for_prompt(session_id)
+    
+    prompt = PromptBuilder.build_user_prompt(
+        user_message=case_description,
+        entities=mem_context["current_case_context"],
+        retrieved_laws=retrieved_context_list,
+        retrieved_cases=[], # Need similar cases logic if available
+        chat_history=mem_context["chat_history"]
     )
 
     try:
-        response = model.generate_content(prompt, stream=True)
-        full_response = ""
+        response = model.generate_content(prompt, stream=False)
+        full_response_text = response.text
         
-        for chunk in response:
-            if chunk.text:
-                full_response += chunk.text
-                # Stream the JSON chunks via SSE
-                yield f"data: {json.dumps({'chunk': chunk.text})}\n\n"
+        # Parse and Validate Response
+        analysis_obj = parse_gemini_response(full_response_text)
+        validated = validate_response(analysis_obj, intent, domain_config, len(retrieved_context_list))
+        
+        final_dict = validated.final_response.model_dump()
+        if validated.data_gap:
+            final_dict["data_gap"] = True
+            final_dict["data_gap_message"] = "I could not find specific sections in my database for this query. Here is general guidance based on my legal knowledge."
+            
+        final_json_str = json.dumps(final_dict)
 
-        # Step 4 continued: Translate summary back if needed
-        if language != "en":
-            try:
-                clean_json = full_response.strip()
-                if clean_json.startswith("```json"):
-                    clean_json = clean_json[7:-3]
-                parsed_json = json.loads(clean_json)
-                summary_text = parsed_json.get("summary", "")
-                
-                if summary_text:
-                    translated_summary_res = model.generate_content(
-                        TRANSLATE_SUMMARY_PROMPT.format(target_language=language, summary=summary_text)
-                    )
-                    translated_summary = translated_summary_res.text.strip()
-                    yield f"data: {json.dumps({'translated_summary': translated_summary})}\n\n"
-            except json.JSONDecodeError:
-                logger.error("Failed to parse JSON for summary translation")
-            except Exception as e:
-                logger.error(f"Summary translation failed: {e}")
+        # Add to memory
+        await memory_manager.add_message(session_id, "user", case_description)
+        await memory_manager.add_message(session_id, "assistant", final_dict.get("conversational_reply", ""))
+
+        # Chunk the output to simulate streaming for the frontend
+        chunk_size = 100
+        for i in range(0, len(final_json_str), chunk_size):
+            chunk = final_json_str[i:i+chunk_size]
+            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
 
         # Cache the final response
         try:
-            redis_client.setex(cache_key, CACHE_TTL, full_response)
+            redis_client.setex(cache_key, CACHE_TTL, final_json_str)
         except Exception as e:
             logger.warning(f"Redis cache set failed: {e}")
 

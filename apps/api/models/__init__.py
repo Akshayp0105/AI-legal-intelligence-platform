@@ -4,5 +4,6 @@ from .knowledge import LegalKnowledge
 from .precedent import CaseJudgment
 from .prediction import CasePrediction
 from .draft import Draft
+from .feedback import ResponseFeedback, FlaggedResponse
 
-__all__ = ["User", "UserRole", "Document", "DocType", "LegalKnowledge", "CaseJudgment", "CasePrediction", "Draft"]
+__all__ = ["User", "UserRole", "Document", "DocType", "LegalKnowledge", "CaseJudgment", "CasePrediction", "Draft", "ResponseFeedback", "FlaggedResponse"]

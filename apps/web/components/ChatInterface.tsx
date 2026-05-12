@@ -35,61 +35,84 @@ export default function ChatInterface() {
 
     const userMessage: Message = { id: Date.now().toString(), role: "user", content: input };
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
     setStatusText("Analyzing case details...");
 
-    // Simulate SSE / streaming response
     const assistantId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 
     try {
-      // Mocking the SSE process
-      const statuses = [
-        "Identifying legal issues...",
-        "Searching precedents (Qdrant)...",
-        "Analyzing under: IPC §302, CrPC §154...",
-        "Drafting arguments..."
-      ];
-      
-      for (let i = 0; i < statuses.length; i++) {
-        setStatusText(statuses[i]);
-        await new Promise(r => setTimeout(r, 800));
-      }
-
-      const mockResponse = "Based on the details provided, the primary legal issues involve Section 302 of the IPC regarding murder, and procedural aspects under Section 154 of the CrPC. I have analyzed the precedents and generated a case strength overview. Please check the analysis panel on the right for a detailed breakdown.";
-      
-      setStatusText("");
-      
-      // Simulate typing animation
-      for (let i = 0; i < mockResponse.length; i++) {
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantId ? { ...msg, content: mockResponse.substring(0, i + 1) } : msg
-        ));
-        await new Promise(r => setTimeout(r, 15));
-      }
-
-      // Set global state to trigger the Case Analysis Panel
-      setAnalysisResult({
-        overview: "This case has a moderate to strong standing based on available evidence and recent Supreme Court rulings regarding circumstantial evidence under Section 302 IPC.",
-        laws: [
-          { section: "IPC §302", description: "Punishment for murder." },
-          { section: "CrPC §154", description: "Information in cognizable cases (FIR)." }
-        ],
-        precedents: [
-          { name: "State of Maharashtra v. Suresh", relevance: "Highly relevant regarding circumstantial evidence chain.", url: "#" },
-          { name: "Sharad Birdhichand Sarda v. State of Maharashtra", relevance: "Landmark judgment on the panchsheel of circumstantial evidence.", url: "#" }
-        ],
-        arguments: {
-          plaintiff: ["Clear chain of circumstantial evidence.", "Motive established by previous enmity."],
-          defendant: ["Missing link in the chain of evidence.", "Delayed FIR without reasonable explanation."]
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analysis/analyze`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        gaps: ["Need witness statements to corroborate the timeline.", "Forensic report pending."],
-        strengthScore: 65
+        body: JSON.stringify({
+          case_description: currentInput,
+          language: "en",
+          chat_history: messages.map(m => ({ role: m.role, content: m.content })),
+          session_id: "default-session" // In production, use real session ID
+        }),
       });
 
+      if (!response.ok) throw new Error("Failed to connect to API");
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.chunk) {
+                  // Check if it's the full JSON or just a partial chunk
+                  // The backend chunks the JSON string, so we accumulate it
+                  fullContent += data.chunk;
+                  
+                  // Try to parse fullContent to see if we have the final object
+                  try {
+                    const parsed = JSON.parse(fullContent);
+                    if (parsed.conversational_reply) {
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === assistantId ? { ...msg, content: parsed.conversational_reply } : msg
+                      ));
+                      setAnalysisResult({
+                        overview: parsed.overview,
+                        laws: parsed.laws,
+                        precedents: parsed.precedents,
+                        arguments: parsed.arguments,
+                        gaps: parsed.gaps || [],
+                        strengthScore: parsed.strength_score || 50
+                      });
+                    }
+                  } catch (e) {
+                    // Partial JSON, update UI with what we have so far if it's a string
+                    // Or just wait for the full JSON
+                  }
+                }
+              } catch (e) {
+                console.error("Error parsing SSE data", e);
+              }
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error(error);
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantId ? { ...msg, content: "Sorry, I encountered an error connecting to the legal engine. Please check if the API is running." } : msg
+      ));
     } finally {
       setIsLoading(false);
       setStatusText("");

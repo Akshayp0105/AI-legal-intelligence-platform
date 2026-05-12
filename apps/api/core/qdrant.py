@@ -6,8 +6,8 @@ QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)
 
 COLLECTION_NAME = "legal_knowledge"
-# Gemini text-embedding-004 has an output dimension of 768
-VECTOR_SIZE = 768
+# Gemini embedding-001 has an output dimension of 3072 in this project
+VECTOR_SIZE = 3072
 
 # Synchronous client for initialization (Qdrant also supports async if needed)
 qdrant_client = QdrantClient(

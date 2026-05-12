@@ -26,8 +26,9 @@ export default function DocumentUpload() {
   }, []);
 
   const processFile = async (file: File) => {
+    const docId = Math.random().toString(36).substr(2, 9);
     const newDoc: UploadedDoc = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: docId,
       name: file.name,
       size: (file.size / 1024 / 1024).toFixed(2) + " MB",
       status: "uploading",
@@ -36,23 +37,50 @@ export default function DocumentUpload() {
 
     setDocuments((prev) => [...prev, newDoc]);
 
-    // Simulate upload and extraction phases
-    for (let i = 10; i <= 100; i += 15) {
-      await new Promise((r) => setTimeout(r, 200));
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("doc_type", "evidence");
+
+      // XHR for progress tracking
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${process.env.NEXT_PUBLIC_API_URL}/api/v1/documents/upload`, true);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          setDocuments((prev) =>
+            prev.map((doc) => (doc.id === docId ? { ...doc, progress: percentComplete } : doc))
+          );
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setDocuments((prev) =>
+            prev.map((doc) => (doc.id === docId ? { ...doc, status: "ready", progress: 100 } : doc))
+          );
+        } else {
+          setDocuments((prev) =>
+            prev.map((doc) => (doc.id === docId ? { ...doc, status: "error" } : doc))
+          );
+        }
+      };
+
+      xhr.onerror = () => {
+        setDocuments((prev) =>
+          prev.map((doc) => (doc.id === docId ? { ...doc, status: "error" } : doc))
+        );
+      };
+
+      xhr.send(formData);
+
+    } catch (error) {
+      console.error("Upload failed", error);
       setDocuments((prev) =>
-        prev.map((doc) => (doc.id === newDoc.id ? { ...doc, progress: i } : doc))
+        prev.map((doc) => (doc.id === docId ? { ...doc, status: "error" } : doc))
       );
     }
-
-    setDocuments((prev) =>
-      prev.map((doc) => (doc.id === newDoc.id ? { ...doc, status: "extracting" } : doc))
-    );
-
-    await new Promise((r) => setTimeout(r, 1500));
-
-    setDocuments((prev) =>
-      prev.map((doc) => (doc.id === newDoc.id ? { ...doc, status: "ready" } : doc))
-    );
   };
 
   const onDrop = useCallback((e: React.DragEvent) => {

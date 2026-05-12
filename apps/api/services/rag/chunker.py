@@ -6,10 +6,14 @@ logger = logging.getLogger(__name__)
 
 def get_text_splitter():
     # 800 tokens, 100 overlap
-    return RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        model_name="cl100k_base", # proxy for gemini tokens or general token counting
+    encoding = tiktoken.get_encoding("cl100k_base")
+    def tiktoken_len(text):
+        return len(encoding.encode(text))
+
+    return RecursiveCharacterTextSplitter(
         chunk_size=800,
         chunk_overlap=100,
+        length_function=tiktoken_len,
         separators=["\n\n", "\n", ".", " ", ""]
     )
 

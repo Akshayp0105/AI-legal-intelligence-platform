@@ -9,7 +9,7 @@ from alembic import context
 
 # Import your Base model here
 from core.database import Base, DATABASE_URL
-# import models  # Ensure all your models are imported before this point
+import models  # Ensure all your models are imported before this point
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

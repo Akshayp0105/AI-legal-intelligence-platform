@@ -24,7 +24,7 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
         batch = texts[i:i+batch_size]
         try:
             result = genai.embed_content(
-                model="models/text-embedding-004",
+                model="models/gemini-embedding-001",
                 content=batch,
                 task_type="retrieval_document"
             )
@@ -43,7 +43,7 @@ def get_query_embedding(text: str) -> List[float]:
     """
     try:
         result = genai.embed_content(
-            model="models/text-embedding-004",
+            model="models/gemini-embedding-001",
             content=text,
             task_type="retrieval_query"
         )

@@ -1,3 +1,3 @@
 ## AI LEGAL INTELLIGENCE PLATFORM FOR GUIDANCE 
 ##
-Ai for legal guidance and information 
+Ai for legal guidance and informations 

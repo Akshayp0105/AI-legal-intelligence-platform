@@ -9,7 +9,7 @@ export default function Dashboard() {
   return (
     <div className="flex h-full w-full">
       <div className={`flex-1 flex flex-col h-full transition-all duration-300 ${analysisResult ? 'border-r border-border' : ''}`}>
-        <ChatInterface />
+        <ChatInterface onAnalysisComplete={(result) => console.log("Analysis:", result)} />
       </div>
       {analysisResult && (
         <div className="w-[450px] flex-shrink-0 h-full overflow-y-auto bg-muted/10 border-l border-border p-4 shadow-sm">

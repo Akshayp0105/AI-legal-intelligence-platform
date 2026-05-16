@@ -28,15 +28,18 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 # Configure CORS
 origins = [
     "http://localhost:3000",
-    # Add other production origins here
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 from api.routes.documents import router as documents_router

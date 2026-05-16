@@ -43,23 +43,31 @@ export default function ChatInterface() {
     const assistantId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analysis/analyze`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/analysis/analyze/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
-          case_description: currentInput,
+          message: currentInput,
           language: "en",
           chat_history: messages.map(m => ({ role: m.role, content: m.content })),
-          session_id: "default-session" // In production, use real session ID
+          session_id: "default-session", // In production, use real session ID
+          user_role: "public"
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to connect to API");
+      clearTimeout(timeout);
 
-      const reader = response.body?.getReader();
+      if (!response.ok) throw new Error(`Failed to connect to API: ${response.statusText}`);
+
+      reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
 
@@ -108,12 +116,29 @@ export default function ChatInterface() {
           }
         }
       }
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => prev.map(msg => 
-        msg.id === assistantId ? { ...msg, content: "Sorry, I encountered an error connecting to the legal engine. Please check if the API is running." } : msg
-      ));
+    } catch (error: any) {
+      console.error("LexAI API Error:", error);
+      console.error("Error details:", error.message, error.stack);
+      
+      if (error.name === 'AbortError') {
+        setMessages(prev => [...prev, {
+          id: assistantId,
+          role: 'assistant',
+          content: 'The request timed out. The backend may be starting up — please try again.'
+        }]);
+      } else {
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantId ? { ...msg, content: "Sorry, I encountered an error connecting to the legal engine. Please check if the API is running." } : msg
+        ));
+      }
     } finally {
+      if (reader) {
+        try {
+          reader.cancel();
+        } catch (e) {
+          console.error("Error canceling reader:", e);
+        }
+      }
       setIsLoading(false);
       setStatusText("");
     }

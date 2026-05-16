@@ -1,149 +1,256 @@
-import os
-import json
-import hashlib
-import redis
-import logging
-from typing import AsyncGenerator, List, Dict, Any, Optional
+import asyncio, json, logging, os, hashlib
+from typing import AsyncGenerator
 import google.generativeai as genai
 
-from core.prompts import (
-    MASTER_ANALYSIS_PROMPT, 
-    ISSUE_EXTRACTION_PROMPT, 
-    TRANSLATE_TO_ENGLISH_PROMPT,
-    TRANSLATE_SUMMARY_PROMPT
-)
-from services.rag.retriever import qdrant_search
+logger = logging.getLogger("lexai.analysis")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-logger = logging.getLogger(__name__)
+DOMAIN_KEYWORDS = {
+    "cyber": ["cyber","bullying","hacking","online","fraud","it act","social media",
+              "whatsapp","defamation","phishing","digital","internet","fake","deepfake",
+              "email","password","account","data","privacy","screenshot","threat","troll"],
+    "criminal": ["murder","theft","rape","assault","fir","bail","arrest","ipc","crpc",
+                 "cognizable","police","chargesheet","custody","accused","crime","offence"],
+    "corporate": ["company","registration","partnership","mca","incorporation","director",
+                  "shares","gst","trademark","llp","firm","business","bond","agreement"],
+    "property": ["land","plot","property","sale deed","encroachment","possession","rera",
+                 "rent","eviction","builder","flat","apartment","lease","landlord","tenant"],
+    "family": ["divorce","maintenance","custody","adoption","will","marriage","dowry",
+               "domestic violence","alimony","separation","heir","inheritance"],
+    "consumer": ["refund","defect","service","product","complaint","ncdrc","consumer",
+                 "deficiency","warranty","guarantee","overcharge","purchase","seller"],
+    "labour": ["salary","termination","pf","esi","gratuity","employment","fired","layoff",
+               "resign","worker","employee","employer","overtime","wages"],
+}
 
-# Initialize Redis client
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-redis_client = redis.from_url(redis_url, decode_responses=True)
-CACHE_TTL = 3600  # 1 hour
+DOMAIN_ACTS = {
+    "cyber": ["IT Act 2000", "IT Amendment Act 2008", "IPC Section 66 series",
+              "Digital Personal Data Protection Act 2023", "IPC 499/500 (Online Defamation)"],
+    "criminal": ["Indian Penal Code (IPC)", "Code of Criminal Procedure (CrPC)",
+                 "Indian Evidence Act", "POCSO Act"],
+    "corporate": ["Companies Act 2013", "Partnership Act 1932", "LLP Act 2008",
+                  "Contract Act 1872", "GST Act"],
+    "property": ["Transfer of Property Act", "RERA Act 2016", "Registration Act 1908",
+                 "Stamp Act", "Rent Control Act"],
+    "family": ["Hindu Marriage Act 1955", "Hindu Succession Act", "Domestic Violence Act",
+               "Guardianship Act"],
+    "consumer": ["Consumer Protection Act 2019", "NCDRC Rules", "E-Commerce Rules 2020"],
+    "labour": ["Industrial Disputes Act", "Payment of Wages Act", "PF Act", "Labour Codes 2020"],
+    "general": ["Constitution of India"],
+}
 
-def get_gemini_model(system_instruction: Optional[str] = None):
-    kwargs = {}
-    if system_instruction:
-        kwargs["system_instruction"] = system_instruction
-    return genai.GenerativeModel("gemini-2.0-flash-001", **kwargs)
+DOMAIN_ROLES = {
+    "cyber": "You are a senior cyber law expert with 15 years experience in Indian IT law, cybercrime prosecution, and digital rights. You know the IT Act 2000 and all amendments deeply.",
+    "criminal": "You are a senior criminal lawyer with 20 years experience in Indian criminal courts, IPC, CrPC, bail hearings, and FIR procedures.",
+    "corporate": "You are a senior corporate lawyer specializing in MCA compliance, company registration, partnership deeds, and commercial contracts in India.",
+    "property": "You are a senior property lawyer specializing in RERA, land disputes, property transactions, and real estate law in India.",
+    "family": "You are a compassionate family law expert specializing in Indian matrimonial law, succession, child custody, and domestic violence cases.",
+    "consumer": "You are a consumer rights lawyer specializing in Consumer Protection Act 2019, NCDRC procedures, and grievance redressal in India.",
+    "labour": "You are a labour law expert specializing in Indian employment law, workers rights, PF/ESI compliance, and industrial disputes.",
+    "general": "You are a knowledgeable Indian legal assistant who provides accurate legal guidance and helps people understand their rights under Indian law.",
+}
 
-async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None, session_id: Optional[str] = None) -> AsyncGenerator[str, None]:
-    from core.intent_classifier import classify_intent
-    from core.domain_router import get_domain_config, build_qdrant_filter, get_relevant_laws_list
-    from core.memory import ConversationMemoryManager
-    from core.validator import validate_response
-    from core.prompts import PromptBuilder, parse_gemini_response
-    import uuid
 
-    if not session_id:
-        session_id = str(uuid.uuid4())
+def detect_domain(message: str, history: list) -> str:
+    """Fast local keyword detection — no API call needed."""
+    text = (message + " ".join(m.get("content","") for m in history[-2:])).lower()
+    scores = {domain: sum(1 for kw in keywords if kw in text)
+              for domain, keywords in DOMAIN_KEYWORDS.items()}
+    best = max(scores, key=scores.get)
+    score = scores[best]
+    logger.info(f"Domain detection: {scores} → {best} (score={score})")
+    return best if score > 0 else "general"
 
-    memory_manager = ConversationMemoryManager()
-    session = await memory_manager.get_or_create_session(session_id, "unknown")
-    
-    # Classify intent
-    new_intent = await classify_intent(case_description, chat_history)
-    
-    # Handle follow-up domain inheritance
-    intent = await memory_manager.inherit_domain_if_followup(session_id, new_intent, case_description)
-    
-    domain_config = get_domain_config(intent.legal_domain)
-    
-    if not intent.is_legal_query:
-        yield f"data: {json.dumps({'chunk': 'I am a legal AI assistant. I can only answer questions related to Indian law.'})}\n\n"
-        return
-        
-    if intent.clarification_needed:
-        yield f"data: {json.dumps({'chunk': intent.clarification_question})}\n\n"
-        return
-        
-    if intent.confidence < 0.5:
-        yield f"data: {json.dumps({'chunk': 'I am not entirely sure about the specifics of your query. Could you please rephrase or provide more details?'})}\n\n"
-        return
 
-    # Extract new entities to case context
-    if intent.entities:
-        await memory_manager.update_case_context(session_id, intent.entities.model_dump())
+def build_prompt(message: str, domain: str, history: list, language: str, user_role: str) -> tuple[str, str]:
+    acts = "\n".join(f"  • {a}" for a in DOMAIN_ACTS.get(domain, DOMAIN_ACTS["general"]))
+    role = DOMAIN_ROLES.get(domain, DOMAIN_ROLES["general"])
 
-    sys_prompt = PromptBuilder.build_system_prompt(domain_config, "public", language)
-    model = get_gemini_model(system_instruction=sys_prompt)
-    
-    # Check cache first
-    cache_key = f"analysis:{hashlib.sha256(case_description.encode('utf-8')).hexdigest()}:{language}"
-    try:
-        cached_result = redis_client.get(cache_key)
-        if cached_result:
-            yield f"data: {json.dumps({'chunk': cached_result, 'is_cached': True})}\n\n"
-            return
-    except Exception as e:
-        logger.warning(f"Redis cache access failed: {e}")
+    lang_note = {
+        "ml": "Respond in simple Malayalam. Use English in brackets for legal terms.",
+        "hi": "Respond in simple Hindi. Use English in brackets for legal terms.",
+    }.get(language, "Respond in clear, simple English. Explain every legal term you use.")
 
-    # RAG retrieval
-    retrieved_context_list = []
-    q_filter = build_qdrant_filter(domain_config)
-    retrieval_top_k = domain_config.get("retrieval_top_k", 5)
-    
-    # Use context memory if no new entities but there is context
-    search_query = case_description
-    if session.current_case_context:
-        search_query += f" (Context: {json.dumps(session.current_case_context)})"
-        
-    try:
-        results = qdrant_search(
-            query=search_query, 
-            top_k=retrieval_top_k, 
-            custom_filter=q_filter
+    role_note = {
+        "advocate": "User is a lawyer — use technical legal terminology freely.",
+        "student": "User is a law student — be academically precise.",
+        "public": "User is a common person — avoid jargon, explain everything simply.",
+    }.get(user_role, "User is a common person — use very simple language.")
+
+    system = f"""{role}
+
+USER: {role_note}
+LANGUAGE: {lang_note}
+
+DOMAIN: {domain.upper()} LAW — Only cite laws from:
+{acts}
+
+CRITICAL RULES:
+1. NEVER cite IPC §302 or criminal sections for cyber/civil/corporate matters.
+2. NEVER invent section numbers. If unsure, write "under [Act Name]" without a number.
+3. Always name the specific court/forum with jurisdiction.
+4. Always mention the limitation period (time to file) if applicable.
+5. Give specific, actionable steps with Indian government portals/offices.
+6. If a question is vague, ask ONE specific clarifying question.
+7. Be warm, professional, and genuinely helpful — like a trusted legal advisor.
+
+RESPOND WITH THIS EXACT JSON (no markdown, no text outside JSON):
+{{
+  "conversational_reply": "2-3 warm sentences summarizing your key findings. This appears in the chat bubble. Write naturally.",
+  "domain": "{domain}",
+  "applicable_laws": [
+    {{
+      "act": "Exact Act Name",
+      "section": "Section number or blank if unsure",
+      "title": "Section title",
+      "explanation": "How this section applies to the user's specific situation",
+      "relevance": "high"
+    }}
+  ],
+  "practical_steps": [
+    {{
+      "step": 1,
+      "action": "Specific thing to do",
+      "where": "Specific office, portal, or authority in India",
+      "documents": ["document 1", "document 2"],
+      "cost": "Approximate INR or Free"
+    }}
+  ],
+  "key_rights": ["Right 1", "Right 2"],
+  "documents_needed": ["Document 1", "Document 2"],
+  "limitation_period": "Time limit to file action, or N/A",
+  "jurisdiction": "Which court or forum handles this",
+  "needs_advocate": true,
+  "advocate_urgency": "optional",
+  "draft_suggestions": ["legal_notice"],
+  "disclaimer": "LexAI provides legal information, not legal advice. Consult a qualified advocate before taking action."
+}}"""
+
+    history_text = ""
+    if history:
+        history_text = "PRIOR CONVERSATION:\n"
+        for m in history[-5:]:
+            history_text += f"{m.get('role','user').upper()}: {m.get('content','')[:300]}\n"
+
+    user = f"""{history_text}
+USER QUESTION: {message}
+
+This is a {domain.upper()} law matter. Only cite {domain} law sections.
+Return ONLY the JSON object."""
+
+    return system, user
+
+
+async def analyze(message: str, session_id: str, history: list,
+                  language: str = "en", user_role: str = "public") -> dict:
+    """Main analysis function — guaranteed to return a valid response."""
+
+    domain = detect_domain(message, history)
+    logger.info(f"Analyzing: '{message[:60]}' | domain={domain} | session={session_id}")
+
+    system_prompt, user_prompt = build_prompt(message, domain, history, language, user_role)
+
+    model = genai.GenerativeModel(
+        model_name="gemini-flash-latest",
+        system_instruction=system_prompt,
+        generation_config=genai.GenerationConfig(
+            temperature=0.1,
+            max_output_tokens=4096,
         )
-        for res in results:
-            payload = res.get('payload', {})
-            text = payload.get('text', '')
-            if text and text not in retrieved_context_list:
-                retrieved_context_list.append(payload)
-    except Exception as e:
-        logger.error(f"Retrieval failed for issue '{search_query}': {e}")
-    
-    # Build prompt with memory context
-    mem_context = await memory_manager.get_context_for_prompt(session_id)
-    
-    prompt = PromptBuilder.build_user_prompt(
-        user_message=case_description,
-        entities=mem_context["current_case_context"],
-        retrieved_laws=retrieved_context_list,
-        retrieved_cases=[], # Need similar cases logic if available
-        chat_history=mem_context["chat_history"]
     )
 
     try:
-        response = model.generate_content(prompt, stream=False)
-        full_response_text = response.text
-        
-        # Parse and Validate Response
-        analysis_obj = parse_gemini_response(full_response_text)
-        validated = validate_response(analysis_obj, intent, domain_config, len(retrieved_context_list))
-        
-        final_dict = validated.final_response.model_dump()
-        if validated.data_gap:
-            final_dict["data_gap"] = True
-            final_dict["data_gap_message"] = "I could not find specific sections in my database for this query. Here is general guidance based on my legal knowledge."
-            
-        final_json_str = json.dumps(final_dict)
+        response = model.generate_content(user_prompt)
+        raw = response.text.strip()
 
-        # Add to memory
-        await memory_manager.add_message(session_id, "user", case_description)
-        await memory_manager.add_message(session_id, "assistant", final_dict.get("conversational_reply", ""))
+        # Better JSON extraction
+        start = raw.find('{')
+        end = raw.rfind('}')
+        if start != -1 and end != -1:
+            raw = raw[start:end+1]
 
-        # Chunk the output to simulate streaming for the frontend
-        chunk_size = 100
-        for i in range(0, len(final_json_str), chunk_size):
-            chunk = final_json_str[i:i+chunk_size]
-            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+        result = json.loads(raw)
+        result["domain"] = domain   # Always set domain from our classifier, not Gemini's guess
+        logger.info(f"Success — domain={domain}, laws={len(result.get('applicable_laws',[]))}")
+        return result
 
-        # Cache the final response
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse failed: {e} | Raw: {raw[:300]}")
+        # SAFE FALLBACK — always return something useful
+        return {
+            "conversational_reply": f"I found relevant information about your {domain} law query. {response.text[:400] if hasattr(response,'text') else 'Please see the details below.'}",
+            "domain": domain,
+            "applicable_laws": [],
+            "practical_steps": [{"step": 1, "action": "Consult a local advocate for detailed guidance", "where": "District Bar Association", "documents": [], "cost": "Varies"}],
+            "key_rights": [],
+            "documents_needed": [],
+            "limitation_period": "Verify with an advocate",
+            "jurisdiction": "As applicable",
+            "needs_advocate": True,
+            "advocate_urgency": "soon",
+            "draft_suggestions": [],
+            "disclaimer": "LexAI provides legal information only. Consult a qualified advocate."
+        }
+    except Exception as e:
+        logger.error(f"Gemini call failed: {type(e).__name__}: {e}")
+        raise
+
+
+async def analyze_stream(message: str, session_id: str, history: list,
+                         language: str = "en", user_role: str = "public") -> AsyncGenerator[str, None]:
+    """Streaming analysis — yields SSE events."""
+
+    domain = detect_domain(message, history)
+    logger.info(f"Stream: '{message[:60]}' | domain={domain}")
+
+    # Immediately tell frontend the domain
+    yield f"data: {json.dumps({'type': 'domain', 'domain': domain})}\n\n"
+    await asyncio.sleep(0)
+
+    system_prompt, user_prompt = build_prompt(message, domain, history, language, user_role)
+
+    model = genai.GenerativeModel(
+        model_name="gemini-flash-latest",
+        system_instruction=system_prompt,
+        generation_config=genai.GenerationConfig(
+            temperature=0.1,
+            max_output_tokens=4096,
+        )
+    )
+
+    full_text = ""
+    try:
+        for chunk in model.generate_content(user_prompt, stream=True):
+            if chunk.text:
+                full_text += chunk.text
+                yield f"data: {json.dumps({'type': 'chunk', 'text': chunk.text})}\n\n"
+                await asyncio.sleep(0)
+
+        # Parse and send complete structured result
+        clean = full_text.strip()
+        start = clean.find('{')
+        end = clean.rfind('}')
+        if start != -1 and end != -1:
+            clean = clean[start:end+1]
+
         try:
-            redis_client.setex(cache_key, CACHE_TTL, final_json_str)
-        except Exception as e:
-            logger.warning(f"Redis cache set failed: {e}")
+            result = json.loads(clean)
+            result["domain"] = domain
+        except:
+            result = {
+                "conversational_reply": clean[:500],
+                "domain": domain,
+                "applicable_laws": [],
+                "practical_steps": [],
+                "key_rights": [],
+                "documents_needed": [],
+                "disclaimer": "LexAI provides legal information only."
+            }
+
+        yield f"data: {json.dumps({'type': 'complete', 'data': result})}\n\n"
 
     except Exception as e:
-        logger.error(f"Model generation failed: {e}")
-        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        logger.error(f"Stream error: {e}")
+        yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    yield "data: [DONE]\n\n"

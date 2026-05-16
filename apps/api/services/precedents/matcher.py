@@ -78,7 +78,7 @@ def analyze_similar_cases(case_description: str, top_k: int = 10, court: Optiona
         logger.error(f"Error searching Qdrant for similar cases: {e}")
         return []
 
-    model = genai.GenerativeModel("gemini-1.5-pro")
+    model = genai.GenerativeModel("gemini-1.5-pro-latest")
     
     similar_cases = []
     for result in search_results:

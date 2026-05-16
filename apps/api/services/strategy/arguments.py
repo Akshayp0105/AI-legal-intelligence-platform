@@ -44,7 +44,7 @@ Note: If side is "plaintiff", defendant_arguments should be an empty array []. I
 
 def generate_arguments(case_description: str, applicable_laws: List[str], side: str) -> Dict[str, Any]:
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro", system_instruction=SYSTEM_INSTRUCTION)
+        model = genai.GenerativeModel("gemini-1.5-pro-latest", system_instruction=SYSTEM_INSTRUCTION)
         laws_str = ", ".join(applicable_laws) if applicable_laws else "None provided"
         prompt = ARGUMENT_PROMPT.format(case_description=case_description, applicable_laws=laws_str, side=side)
         

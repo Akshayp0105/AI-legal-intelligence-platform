@@ -57,7 +57,7 @@ Return ONLY the final (potentially modified) gap description string, nothing els
 
 def analyze_gaps(case_description: str, documents_texts: List[str]) -> Dict[str, Any]:
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro", system_instruction=SYSTEM_INSTRUCTION)
+        model = genai.GenerativeModel("gemini-1.5-pro-latest", system_instruction=SYSTEM_INSTRUCTION)
         
         doc_text_combined = "\n\n".join(documents_texts)
         if len(doc_text_combined) > 50000:

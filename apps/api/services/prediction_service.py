@@ -8,7 +8,7 @@ from services.rag.retriever import qdrant_search
 logger = logging.getLogger(__name__)
 
 def get_gemini_model():
-    return genai.GenerativeModel("gemini-1.5-pro")
+    return genai.GenerativeModel("gemini-1.5-pro-latest")
 
 async def predict_case_strength(request: PredictionRequest) -> dict:
     # 1. Fetch similar cases from Qdrant

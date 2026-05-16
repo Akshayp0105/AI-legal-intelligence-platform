@@ -17,15 +17,15 @@ from services.rag.retriever import qdrant_search
 logger = logging.getLogger(__name__)
 
 # Initialize Redis client
-# Consider using redis.asyncio in production, but synchronous is used here for simplicity.
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.from_url(redis_url, decode_responses=True)
 CACHE_TTL = 3600  # 1 hour
 
 def get_gemini_model(system_instruction: Optional[str] = None):
     kwargs = {}
     if system_instruction:
         kwargs["system_instruction"] = system_instruction
-    return genai.GenerativeModel("gemini-1.5-pro", **kwargs)
+    return genai.GenerativeModel("gemini-1.5-pro-latest", **kwargs)
 
 async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None, session_id: Optional[str] = None) -> AsyncGenerator[str, None]:
     from core.intent_classifier import classify_intent

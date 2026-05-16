@@ -9,8 +9,11 @@ from core.intent_classifier import ClassifiedIntent
 
 logger = logging.getLogger(__name__)
 
+import os
+
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    redis_client = redis.from_url(redis_url, decode_responses=True)
 except Exception as e:
     redis_client = None
     logger.warning(f"Failed to initialize Redis in memory: {e}")

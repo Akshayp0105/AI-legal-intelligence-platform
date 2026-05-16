@@ -9,7 +9,7 @@ from docx import Document
 logger = logging.getLogger(__name__)
 
 def get_gemini_model():
-    return genai.GenerativeModel("gemini-1.5-pro")
+    return genai.GenerativeModel("gemini-1.5-pro-latest")
 
 class DraftingService:
     def __init__(self):

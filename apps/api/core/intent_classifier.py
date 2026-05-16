@@ -8,9 +8,16 @@ import redis
 
 logger = logging.getLogger(__name__)
 
+import os
+
 # Initialize Redis client synchronously
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    if redis_url.startswith("redis://"):
+        redis_client = redis.from_url(redis_url, decode_responses=True)
+    else:
+        # Fallback if REDIS_URL is just a host
+        redis_client = redis.Redis(host=redis_url, port=6379, db=0, decode_responses=True)
 except Exception as e:
     redis_client = None
     logger.warning(f"Failed to initialize Redis in intent_classifier: {e}")
@@ -67,7 +74,7 @@ async def classify_intent(user_message: str, chat_history: Optional[List[Dict[st
             logger.warning(f"Redis get failed in classify_intent: {e}")
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash", system_instruction=SYSTEM)
+        model = genai.GenerativeModel("gemini-2.0-flash-001", system_instruction=SYSTEM)
         history_context = chat_history[-3:] if len(chat_history) > 3 else chat_history
         
         USER_PROMPT = f"""Classify this legal query:

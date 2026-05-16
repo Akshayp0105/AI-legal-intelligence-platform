@@ -25,7 +25,7 @@ def get_gemini_model(system_instruction: Optional[str] = None):
     kwargs = {}
     if system_instruction:
         kwargs["system_instruction"] = system_instruction
-    return genai.GenerativeModel("gemini-1.5-pro-latest", **kwargs)
+    return genai.GenerativeModel("gemini-2.0-flash-001", **kwargs)
 
 async def analyze_case_stream(case_description: str, language: str = "en", chat_history: Optional[List[Dict[str, Any]]] = None, session_id: Optional[str] = None) -> AsyncGenerator[str, None]:
     from core.intent_classifier import classify_intent

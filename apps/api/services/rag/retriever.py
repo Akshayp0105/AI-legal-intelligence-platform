@@ -17,9 +17,16 @@ from qdrant_client.http import models as qdrant_models
 
 logger = logging.getLogger(__name__)
 
+import os
+
 # Initialize Redis client asynchronously
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    if redis_url.startswith("redis://"):
+        redis_client = redis.from_url(redis_url, decode_responses=True)
+    else:
+        # Fallback
+        redis_client = redis.Redis(host=redis_url, port=6379, db=0, decode_responses=True)
 except Exception as e:
     redis_client = None
     logger.warning(f"Failed to initialize Redis in retriever: {e}")
@@ -119,7 +126,7 @@ async def rerank_with_gemini(query: str, results: List[Any], domain: str) -> Lis
         return []
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash-001")
         
         # Prepare content for ranking
         sections_text = ""

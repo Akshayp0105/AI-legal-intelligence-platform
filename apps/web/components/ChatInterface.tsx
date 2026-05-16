@@ -268,146 +268,136 @@ export default function ChatInterface({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "var(--off-white)", fontFamily: "var(--font-body)" }}>
 
-      {/* Message list */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* Header bar */}
+      <div style={{ padding: "16px 28px", borderBottom: "1px solid var(--border)", background: "var(--white)", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 0 var(--border)" }}>
+        <div>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "18px", fontWeight: 500, color: "var(--navy)", letterSpacing: "-0.3px" }}>New Case</h2>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "1px" }}>AI-powered legal analysis • Indian Law</p>
+        </div>
+        {detectedDomain && (
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", borderRadius: "20px", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.3)", animation: "badge-pop 0.35s var(--ease-spring)" }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--amber)", animation: "pulse-dot 2s ease-in-out infinite", display: "inline-block" }} />
+            <span style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: "var(--navy)" }}>{detectedDomain} Law</span>
+          </div>
+        )}
+      </div>
 
-        {/* Welcome */}
+      {/* Message area */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "32px 28px", display: "flex", flexDirection: "column", gap: "28px" }}>
+
+        {/* Welcome state */}
         {messages.length === 0 && !isLoading && (
-          <div style={{ alignSelf: "flex-start", maxWidth: "75%", background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: "16px", padding: "14px 18px", fontSize: "14px", color: "#374151", lineHeight: 1.6 }}>
-            Welcome to LexAI. How can I assist you with your legal query today?
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: "20px", paddingBottom: "60px", animation: "fadeIn 0.6s var(--ease-out)" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "20px", background: "var(--navy)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-lg)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 600, color: "var(--amber)" }}>L</span>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 500, color: "var(--navy)", marginBottom: "8px" }}>How can I assist you today?</h3>
+              <p style={{ fontSize: "14px", color: "var(--text-muted)", maxWidth: "380px", lineHeight: 1.6 }}>Describe your legal situation, paste case facts, or ask about any area of Indian law.</p>
+            </div>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const, justifyContent: "center", maxWidth: "480px" }}>
+              {["Register a startup in Kerala", "Cyber bullying complaint process", "Property dispute with neighbour", "Consumer complaint against Amazon"].map(s => (
+                <button key={s} onClick={() => setInput(s)} style={{ padding: "7px 14px", borderRadius: "20px", fontSize: "13px", border: "1px solid var(--border-strong)", background: "var(--white)", color: "var(--text-secondary)", cursor: "pointer", transition: "all var(--duration-fast) var(--ease-out)", fontFamily: "var(--font-body)" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--amber)"; e.currentTarget.style.background = "var(--amber-pale)"; e.currentTarget.style.color = "var(--navy)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.background = "var(--white)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                >{s}</button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Messages */}
-        {messages.map((msg) => (
-          <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: "8px" }}>
+        {messages.map((msg, idx) => (
+          <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: "10px", animation: "fadeUp 0.4s var(--ease-out) both", animationDelay: `${idx * 30}ms` }}>
 
-            {/* Domain badge on assistant messages */}
-            {msg.role === "assistant" && msg.domain && (
-              <span style={{
-                fontSize: "10px", padding: "2px 8px", borderRadius: "20px",
-                background: `${DOMAIN_COLORS[msg.domain] ?? "#6B7280"}18`,
-                color: DOMAIN_COLORS[msg.domain] ?? "#6B7280",
-                border: `0.5px solid ${DOMAIN_COLORS[msg.domain] ?? "#6B7280"}40`,
-                fontWeight: 500, alignSelf: "flex-start", marginLeft: "4px"
-              }}>
-                {msg.domain.toUpperCase()} LAW
-              </span>
+            {msg.role === "user" && (
+              <div style={{ maxWidth: "72%", padding: "14px 18px", borderRadius: "20px 20px 4px 20px", background: "var(--navy)", color: "#fff", fontSize: "14px", lineHeight: 1.65, boxShadow: "var(--shadow-md)", whiteSpace: "pre-wrap" }}>{msg.content}</div>
             )}
 
-            {/* Bubble */}
-            <div style={{
-              maxWidth: "78%",
-              padding: "12px 16px",
-              borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-              background: msg.role === "user" ? "#0A1628" : "#fff",
-              color: msg.role === "user" ? "#fff" : "#111827",
-              border: msg.role === "user" ? "none" : "0.5px solid #e5e7eb",
-              fontSize: "14px",
-              lineHeight: 1.65,
-              whiteSpace: "pre-wrap",
-            }}>
-              {msg.content}
-            </div>
-
-            {/* Law sections */}
-            {msg.role === "assistant" && msg.analysis?.applicable_laws && msg.analysis.applicable_laws.length > 0 && (
-              <div style={{ maxWidth: "78%", display: "flex", flexDirection: "column", gap: "6px", marginLeft: "4px" }}>
-                <span style={{ fontSize: "11px", color: "#9CA3AF", fontWeight: 500 }}>APPLICABLE LAWS</span>
-                {msg.analysis.applicable_laws.map((law, i) => (
-                  <div key={i} style={{
-                    background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: "10px",
-                    padding: "10px 14px", fontSize: "13px"
-                  }}>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
-                      <span style={{
-                        fontSize: "11px", fontWeight: 600, padding: "2px 8px",
-                        borderRadius: "8px", background: "#0A1628", color: "#fff"
-                      }}>
-                        {law.act}{law.section ? ` §${law.section}` : ""}
-                      </span>
-                      <span style={{ fontWeight: 500, color: "#111827", fontSize: "13px" }}>{law.title}</span>
-                    </div>
-                    <p style={{ margin: 0, color: "#6B7280", fontSize: "12px", lineHeight: 1.5 }}>{law.explanation}</p>
+            {msg.role === "assistant" && (
+              <div style={{ maxWidth: "88%", display: "flex", flexDirection: "column", gap: "12px" }}>
+                {msg.domain && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 11px", borderRadius: "20px", alignSelf: "flex-start", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.25)", animation: "badge-pop 0.35s var(--ease-spring)" }}>
+                    <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--amber)", display: "inline-block" }} />
+                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase" as const, color: "var(--navy)" }}>{msg.domain} Law</span>
                   </div>
-                ))}
-              </div>
-            )}
+                )}
+                <div style={{ padding: "16px 20px", borderRadius: "4px 20px 20px 20px", background: "var(--white)", border: "1px solid var(--border)", fontSize: "14px", lineHeight: 1.7, color: "var(--text-primary)", boxShadow: "var(--shadow-sm)", whiteSpace: "pre-wrap" }}>{msg.content}</div>
 
-            {/* Practical steps */}
-            {msg.role === "assistant" && msg.analysis?.practical_steps && msg.analysis.practical_steps.length > 0 && (
-              <div style={{ maxWidth: "78%", marginLeft: "4px" }}>
-                <span style={{ fontSize: "11px", color: "#9CA3AF", fontWeight: 500 }}>PRACTICAL STEPS</span>
-                <div style={{ marginTop: "6px", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {msg.analysis.practical_steps.map((step, i) => (
-                    <div key={i} style={{
-                      background: "#F9FAFB", border: "0.5px solid #e5e7eb", borderRadius: "10px",
-                      padding: "10px 14px", fontSize: "13px", display: "flex", gap: "12px"
-                    }}>
-                      <span style={{
-                        minWidth: "22px", height: "22px", borderRadius: "50%",
-                        background: "#0A1628", color: "#fff", display: "flex",
-                        alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 600
-                      }}>{step.step}</span>
-                      <div>
-                        <div style={{ fontWeight: 500, color: "#111827" }}>{step.action}</div>
-                        <div style={{ color: "#6B7280", fontSize: "12px" }}>{step.where}</div>
+                {msg.analysis?.applicable_laws && msg.analysis.applicable_laws.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-muted)", textTransform: "uppercase" as const, paddingLeft: "2px" }}>Applicable Laws</p>
+                    {msg.analysis.applicable_laws.map((law, i) => (
+                      <div key={i} style={{ background: "var(--white)", border: "1px solid var(--border)", borderLeft: "3px solid var(--amber)", borderRadius: "0 12px 12px 0", padding: "12px 16px", boxShadow: "var(--shadow-sm)", animation: `slideIn 0.35s var(--ease-out) ${i * 60}ms both` }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, padding: "3px 9px", borderRadius: "6px", background: "var(--navy)", color: "var(--amber)", letterSpacing: "0.02em" }}>{law.act}{law.section ? ` §${law.section}` : ""}</span>
+                          <span style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-primary)" }}>{law.title}</span>
+                          {law.relevance === "high" && <span style={{ marginLeft: "auto", fontSize: "10px", padding: "2px 7px", borderRadius: "10px", background: "#ECFDF5", color: "#047857", fontWeight: 500 }}>High relevance</span>}
+                        </div>
+                        <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.55, margin: 0 }}>{law.explanation}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                    ))}
+                  </div>
+                )}
 
-            {/* Advocate warning */}
-            {msg.role === "assistant" && msg.analysis?.needs_advocate && msg.analysis?.advocate_urgency === "immediate" && (
-              <div style={{
-                maxWidth: "78%", marginLeft: "4px", background: "#FEF2F2",
-                border: "0.5px solid #FECACA", borderRadius: "10px",
-                padding: "10px 14px", fontSize: "12px", color: "#DC2626"
-              }}>
-                ⚠️ This situation requires immediate consultation with an advocate.
-              </div>
-            )}
+                {msg.analysis?.practical_steps && msg.analysis.practical_steps.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-muted)", textTransform: "uppercase" as const, paddingLeft: "2px" }}>Action Steps</p>
+                    {msg.analysis.practical_steps.map((step, i) => (
+                      <div key={i} style={{ display: "flex", gap: "12px", padding: "12px 16px", background: "var(--white)", border: "1px solid var(--border)", borderRadius: "12px", boxShadow: "var(--shadow-sm)", animation: `slideIn 0.35s var(--ease-out) ${i * 60 + 100}ms both` }}>
+                        <div style={{ minWidth: "26px", height: "26px", borderRadius: "8px", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, color: "var(--amber)" }}>{step.step}</div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-primary)", marginBottom: "3px" }}>{step.action}</p>
+                          <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>📍 {step.where}{step.cost && step.cost !== "Varies" ? <span style={{ marginLeft: "12px" }}>💰 {step.cost}</span> : null}</p>
+                          {step.documents?.length > 0 && (
+                            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "4px", marginTop: "6px" }}>
+                              {step.documents.map((doc, di) => <span key={di} style={{ fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: "var(--surface)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>{doc}</span>)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-            {/* Disclaimer */}
-            {msg.role === "assistant" && msg.analysis && (
-              <p style={{ maxWidth: "78%", marginLeft: "4px", fontSize: "11px", color: "#9CA3AF", margin: "2px 0 0 4px" }}>
-                {msg.analysis.disclaimer}
-              </p>
+                {msg.analysis?.needs_advocate && msg.analysis?.advocate_urgency === "immediate" && (
+                  <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#FEF2F2", border: "1px solid #FECACA", display: "flex", alignItems: "center", gap: "10px", animation: "scaleIn 0.3s var(--ease-spring)" }}>
+                    <span style={{ fontSize: "18px" }}>⚠️</span>
+                    <p style={{ fontSize: "13px", color: "#DC2626", margin: 0, lineHeight: 1.5 }}>This matter requires <strong>immediate legal representation</strong>. Contact a qualified advocate as soon as possible.</p>
+                  </div>
+                )}
+
+                {msg.analysis && (
+                  <p style={{ fontSize: "11px", color: "var(--text-muted)", paddingLeft: "2px", lineHeight: 1.5 }}>ℹ️ {msg.analysis.disclaimer}</p>
+                )}
+              </div>
             )}
           </div>
         ))}
 
-        {/* Streaming bubble */}
+        {/* Loading state */}
         {isLoading && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "10px", animation: "fadeUp 0.3s var(--ease-out)" }}>
             {statusText && (
-              <span style={{
-                fontSize: "10px", padding: "2px 10px", borderRadius: "20px",
-                background: "#EEF2FF", color: "#4F46E5", border: "0.5px solid #C7D2FE",
-                fontWeight: 500
-              }}>{statusText}</span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 12px", borderRadius: "20px", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.4)" }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--amber)", animation: "pulse-dot 1s ease-in-out infinite", display: "inline-block" }} />
+                <span style={{ fontSize: "11px", color: "var(--navy)", fontWeight: 500 }}>{statusText}</span>
+              </div>
             )}
-            <div style={{
-              maxWidth: "78%", padding: "12px 16px",
-              borderRadius: "18px 18px 18px 4px",
-              background: "#fff", border: "0.5px solid #e5e7eb",
-              fontSize: "14px", lineHeight: 1.65, color: "#111827"
-            }}>
+            <div style={{ maxWidth: "80%", padding: "16px 20px", borderRadius: "4px 20px 20px 20px", background: "var(--white)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)", fontSize: "14px", lineHeight: 1.7, color: "var(--text-primary)", minWidth: "60px" }}>
               {streamingText ? (
-                <span>{streamingText}<span style={{ display: "inline-block", width: "2px", height: "14px", background: "#4F46E5", marginLeft: "2px", animation: "blink 1s step-end infinite", verticalAlign: "text-bottom" }} /></span>
+                <>
+                  {streamingText}
+                  <span style={{ display: "inline-block", width: "2px", height: "15px", background: "var(--navy)", marginLeft: "2px", verticalAlign: "text-bottom", animation: "cursor-blink 0.9s step-end infinite" }} />
+                </>
               ) : (
-                <span style={{ display: "flex", gap: "4px", alignItems: "center", padding: "2px 0" }}>
+                <div style={{ display: "flex", gap: "5px", alignItems: "center", height: "18px" }}>
                   {[0, 1, 2].map(i => (
-                    <span key={i} style={{
-                      width: "7px", height: "7px", borderRadius: "50%", background: "#D1D5DB",
-                      animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`
-                    }} />
+                    <span key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--navy)", opacity: 0.3, animation: `bounce-dot 1.1s ease-in-out ${i * 180}ms infinite`, display: "inline-block" }} />
                   ))}
-                </span>
+                </div>
               )}
             </div>
           </div>
@@ -417,62 +407,50 @@ export default function ChatInterface({
       </div>
 
       {/* Input area */}
-      <div style={{
-        borderTop: "0.5px solid #e5e7eb", padding: "16px 20px",
-        background: "#fff", display: "flex", gap: "10px", alignItems: "flex-end"
-      }}>
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Describe the legal situation, paste facts, or ask a question..."
-          disabled={isLoading}
-          rows={1}
-          style={{
-            flex: 1, resize: "none", border: "0.5px solid #D1D5DB",
-            borderRadius: "12px", padding: "10px 14px", fontSize: "14px",
-            fontFamily: "inherit", outline: "none", lineHeight: 1.5,
-            minHeight: "42px", maxHeight: "120px", overflowY: "auto",
-            background: isLoading ? "#F9FAFB" : "#fff",
-          }}
-          onInput={(e) => {
-            const el = e.currentTarget;
-            el.style.height = "auto";
-            el.style.height = Math.min(el.scrollHeight, 120) + "px";
-          }}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!input.trim() || isLoading}
-          style={{
-            width: "42px", height: "42px", borderRadius: "12px",
-            background: !input.trim() || isLoading ? "#D1D5DB" : "#D4A017",
-            border: "none", cursor: !input.trim() || isLoading ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "background 0.15s", flexShrink: 0
-          }}
+      <div style={{ padding: "16px 28px 20px", background: "var(--white)", borderTop: "1px solid var(--border)" }}>
+        <div
+          style={{ display: "flex", gap: "10px", alignItems: "flex-end", background: "var(--off-white)", border: "1.5px solid var(--border-strong)", borderRadius: "16px", padding: "10px 10px 10px 16px", transition: "border-color var(--duration-fast)", boxShadow: "var(--shadow-sm)" }}
+          onFocusCapture={e => (e.currentTarget.style.borderColor = "var(--navy)")}
+          onBlurCapture={e => (e.currentTarget.style.borderColor = "var(--border-strong)")}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13" />
-            <polygon points="22 2 15 22 11 13 2 9 22 2" />
-          </svg>
-        </button>
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Describe the legal situation, paste facts, or ask a question..."
+            disabled={isLoading}
+            rows={1}
+            style={{ flex: 1, resize: "none", border: "none", outline: "none", background: "transparent", fontSize: "14px", lineHeight: 1.6, fontFamily: "var(--font-body)", color: "var(--text-primary)", minHeight: "36px", maxHeight: "120px", overflowY: "auto", padding: "6px 0" }}
+            onInput={e => { const el = e.currentTarget; el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; }}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={!input.trim() || isLoading}
+            style={{ width: "36px", height: "36px", borderRadius: "10px", border: "none", cursor: !input.trim() || isLoading ? "not-allowed" : "pointer", background: !input.trim() || isLoading ? "var(--surface)" : "var(--navy)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all var(--duration-base) var(--ease-out)", boxShadow: !input.trim() || isLoading ? "none" : "var(--shadow-md)" }}
+            onMouseEnter={e => { if (input.trim() && !isLoading) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "var(--shadow-lg)"; } }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = input.trim() && !isLoading ? "var(--shadow-md)" : "none"; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={!input.trim() || isLoading ? "var(--text-muted)" : "var(--amber)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </div>
+        <p style={{ textAlign: "center", fontSize: "11px", color: "var(--text-muted)", marginTop: "10px", lineHeight: 1.4 }}>
+          LexAI can make mistakes. Verify important legal information with a qualified advocate.
+        </p>
       </div>
 
-      <p style={{ textAlign: "center", fontSize: "11px", color: "#9CA3AF", padding: "0 0 10px", margin: 0 }}>
-        LexAI can make mistakes. Verify important legal information.
-      </p>
-
       <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-6px); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+        @keyframes badge-pop { 0%{transform:scale(0.8);opacity:0;} 60%{transform:scale(1.06);} 100%{transform:scale(1);opacity:1;} }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.75);} }
+        @keyframes bounce-dot { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
+        @keyframes cursor-blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
       `}</style>
     </div>
   );

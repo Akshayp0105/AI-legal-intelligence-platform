@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import VoiceButton from "@/components/VoiceButton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,7 @@ export default function ChatInterface({
   const [statusText, setStatusText] = useState("");
   const [streamingText, setStreamingText] = useState("");
   const [detectedDomain, setDetectedDomain] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState("en-IN");
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -276,12 +278,41 @@ export default function ChatInterface({
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "18px", fontWeight: 500, color: "var(--navy)", letterSpacing: "-0.3px" }}>New Case</h2>
           <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "1px" }}>AI-powered legal analysis • Indian Law</p>
         </div>
-        {detectedDomain && (
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", borderRadius: "20px", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.3)", animation: "badge-pop 0.35s var(--ease-spring)" }}>
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--amber)", animation: "pulse-dot 2s ease-in-out infinite", display: "inline-block" }} />
-            <span style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: "var(--navy)" }}>{detectedDomain} Law</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {detectedDomain && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", borderRadius: "20px", background: "var(--amber-pale)", border: "1px solid rgba(212,160,23,0.3)", animation: "badge-pop 0.35s var(--ease-spring)" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--amber)", animation: "pulse-dot 2s ease-in-out infinite", display: "inline-block" }} />
+              <span style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: "var(--navy)" }}>{detectedDomain} Law</span>
+            </div>
+          )}
+          {/* Language selector for voice input */}
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            {[
+              { code: "en-IN", label: "EN" },
+              { code: "ml-IN", label: "ML" },
+              { code: "hi-IN", label: "HI" },
+            ].map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => setVoiceLanguage(lang.code)}
+                title={`Voice input in ${lang.code === "en-IN" ? "English" : lang.code === "ml-IN" ? "Malayalam" : "Hindi"}`}
+                style={{
+                  padding: "4px 9px", borderRadius: "8px", fontSize: "11px",
+                  fontWeight: voiceLanguage === lang.code ? 600 : 400,
+                  border: voiceLanguage === lang.code
+                    ? "1px solid var(--navy)" : "1px solid var(--border)",
+                  background: voiceLanguage === lang.code ? "var(--navy)" : "transparent",
+                  color: voiceLanguage === lang.code ? "#fff" : "var(--text-muted)",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >{lang.label}</button>
+            ))}
+            <span style={{ fontSize: "11px", color: "var(--text-muted)", marginLeft: "2px" }}>
+              🎙️
+            </span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Message area */}
@@ -423,6 +454,24 @@ export default function ChatInterface({
             rows={1}
             style={{ flex: 1, resize: "none", border: "none", outline: "none", background: "transparent", fontSize: "14px", lineHeight: 1.6, fontFamily: "var(--font-body)", color: "var(--text-primary)", minHeight: "36px", maxHeight: "120px", overflowY: "auto", padding: "6px 0" }}
             onInput={e => { const el = e.currentTarget; el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; }}
+          />
+          <VoiceButton
+            language={voiceLanguage}
+            disabled={isLoading}
+            onTranscript={(text) => {
+              // Append to existing input (supports mid-sentence additions)
+              setInput(prev => {
+                const trimmed = prev.trimEnd();
+                return trimmed ? trimmed + " " + text.trim() : text.trim();
+              });
+              // Auto-resize textarea after voice input
+              if (inputRef.current) {
+                inputRef.current.style.height = "auto";
+                inputRef.current.style.height =
+                  Math.min(inputRef.current.scrollHeight, 120) + "px";
+                inputRef.current.focus();
+              }
+            }}
           />
           <button
             onClick={sendMessage}

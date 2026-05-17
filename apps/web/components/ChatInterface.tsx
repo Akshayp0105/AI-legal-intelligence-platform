@@ -71,11 +71,11 @@ const API_BASE =
 const DOMAIN_COLORS: Record<string, string> = {
   cyber: "#7C3AED",
   criminal: "#DC2626",
-  corporate: "#2563EB",
-  property: "#D97706",
-  family: "#DB2777",
-  consumer: "#059669",
-  labour: "#0891B2",
+  corporate: "#1D4ED8",
+  property: "#B45309",
+  family: "#BE185D",
+  consumer: "#047857",
+  labour: "#0369A1",
   constitutional: "#4F46E5",
   general: "#6B7280",
 };
@@ -320,22 +320,158 @@ export default function ChatInterface({
 
         {/* Welcome state */}
         {messages.length === 0 && !isLoading && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: "20px", paddingBottom: "60px", animation: "fadeIn 0.6s var(--ease-out)" }}>
-            <div style={{ width: "64px", height: "64px", borderRadius: "20px", background: "var(--navy)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-lg)" }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 600, color: "var(--amber)" }}>L</span>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 500, color: "var(--navy)", marginBottom: "8px" }}>How can I assist you today?</h3>
-              <p style={{ fontSize: "14px", color: "var(--text-muted)", maxWidth: "380px", lineHeight: 1.6 }}>Describe your legal situation, paste case facts, or ask about any area of Indian law.</p>
-            </div>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const, justifyContent: "center", maxWidth: "480px" }}>
-              {["Register a startup in Kerala", "Cyber bullying complaint process", "Property dispute with neighbour", "Consumer complaint against Amazon"].map(s => (
-                <button key={s} onClick={() => setInput(s)} style={{ padding: "7px 14px", borderRadius: "20px", fontSize: "13px", border: "1px solid var(--border-strong)", background: "var(--white)", color: "var(--text-secondary)", cursor: "pointer", transition: "all var(--duration-fast) var(--ease-out)", fontFamily: "var(--font-body)" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--amber)"; e.currentTarget.style.background = "var(--amber-pale)"; e.currentTarget.style.color = "var(--navy)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.background = "var(--white)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
-                >{s}</button>
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", flex: 1, gap: "0px",
+            paddingBottom: "40px", position: "relative", overflow: "hidden",
+          }}>
+
+            {/* ── Ambient background elements ─────────────────────── */}
+            <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+              {/* Large soft gradient orb top-right */}
+              <div style={{
+                position: "absolute", top: "-80px", right: "-60px",
+                width: "400px", height: "400px", borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(212,160,23,0.06) 0%, transparent 70%)",
+                animation: "floatOrb 8s ease-in-out infinite",
+              }} />
+              {/* Smaller orb bottom-left */}
+              <div style={{
+                position: "absolute", bottom: "40px", left: "-40px",
+                width: "280px", height: "280px", borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(10,22,40,0.04) 0%, transparent 70%)",
+                animation: "floatOrb 10s ease-in-out 2s infinite reverse",
+              }} />
+              {/* Subtle grid pattern */}
+              <div style={{
+                position: "absolute", inset: 0,
+                backgroundImage: "radial-gradient(circle, rgba(10,22,40,0.04) 1px, transparent 1px)",
+                backgroundSize: "32px 32px",
+                maskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 100%)",
+                WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 100%)",
+              }} />
+              {/* Floating legal symbols */}
+              {[
+                { symbol: "§", top: "15%", left: "8%",  size: 28, delay: "0s",   dur: "7s"  },
+                { symbol: "⚖", top: "20%", right: "10%", size: 24, delay: "1s",   dur: "9s"  },
+                { symbol: "📜", top: "70%", left: "6%",  size: 20, delay: "2s",   dur: "8s"  },
+                { symbol: "🏛", top: "65%", right: "8%", size: 22, delay: "0.5s", dur: "11s" },
+                { symbol: "§", top: "45%", left: "3%",  size: 18, delay: "3s",   dur: "6s"  },
+                { symbol: "⚖", top: "80%", right: "5%", size: 16, delay: "1.5s", dur: "10s" },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  position: "absolute",
+                  top: item.top, left: item.left, right: item.right,
+                  fontSize: `${item.size}px`,
+                  opacity: 0.07,
+                  animation: `floatSymbol ${item.dur} ease-in-out ${item.delay} infinite`,
+                  userSelect: "none",
+                }}>{item.symbol}</div>
               ))}
             </div>
+
+            {/* ── Logo mark ────────────────────────────────────────── */}
+            <div style={{
+              width: "72px", height: "72px", borderRadius: "22px",
+              background: "var(--navy)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 8px 32px rgba(10,22,40,0.18), 0 0 0 1px rgba(212,160,23,0.15)",
+              marginBottom: "28px", position: "relative",
+              animation: "logoEntrance 0.8s cubic-bezier(0.34,1.56,0.64,1)",
+            }}>
+              {/* Amber ring pulse */}
+              <div style={{
+                position: "absolute", inset: "-3px", borderRadius: "25px",
+                border: "1.5px solid rgba(212,160,23,0.25)",
+                animation: "ringPulse 3s ease-in-out infinite",
+              }} />
+              <span style={{
+                fontFamily: "var(--font-display)", fontSize: "28px",
+                fontWeight: 600, color: "var(--amber)", lineHeight: 1,
+              }}>L</span>
+            </div>
+
+            {/* ── Typewriter headline ───────────────────────────────── */}
+            <TypewriterHeadline />
+
+            {/* ── Subtitle ─────────────────────────────────────────── */}
+            <p style={{
+              fontSize: "15px", color: "var(--text-muted)", textAlign: "center",
+              maxWidth: "360px", lineHeight: 1.65, marginTop: "12px", marginBottom: "36px",
+              animation: "fadeUp 0.7s 0.3s var(--ease-out) both",
+            }}>
+              Describe your legal situation, paste case facts, or ask about any area of Indian law.
+            </p>
+
+            {/* ── Suggestion chips ─────────────────────────────────── */}
+            <div style={{
+              display: "flex", gap: "8px", flexWrap: "wrap",
+              justifyContent: "center", maxWidth: "520px",
+            }}>
+              {[
+                { label: "Register a startup in Kerala",      icon: "🏢", domain: "corporate" },
+                { label: "Cyber bullying complaint process",  icon: "🛡️", domain: "cyber"     },
+                { label: "Property dispute with neighbour",   icon: "🏠", domain: "property"  },
+                { label: "Consumer complaint against Amazon", icon: "📦", domain: "consumer"  },
+                { label: "Divorce maintenance rights",        icon: "⚖️", domain: "family"    },
+                { label: "Wrongful termination of job",       icon: "💼", domain: "labour"    },
+              ].map((chip, i) => (
+                <SuggestionChip
+                  key={chip.label}
+                  chip={chip}
+                  index={i}
+                  onClick={() => setInput(chip.label)}
+                />
+              ))}
+            </div>
+
+            {/* ── Trust bar ─────────────────────────────────────────── */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: "20px",
+              marginTop: "40px", paddingTop: "28px",
+              borderTop: "1px solid var(--border)",
+              animation: "fadeUp 0.6s 0.8s var(--ease-out) both",
+            }}>
+              {[
+                { value: "IPC + CrPC", label: "Criminal Law" },
+                { value: "Companies Act", label: "Corporate Law" },
+                { value: "RERA + TP Act", label: "Property Law" },
+                { value: "8+ Domains", label: "Areas of Law" },
+              ].map((stat, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--navy)", marginBottom: "2px" }}>
+                    {stat.value}
+                  </p>
+                  <p style={{ fontSize: "10px", color: "var(--text-muted)", letterSpacing: "0.04em" }}>
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <style>{`
+              @keyframes floatOrb {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                33%       { transform: translate(12px, -16px) scale(1.05); }
+                66%       { transform: translate(-8px, 10px) scale(0.97); }
+              }
+              @keyframes floatSymbol {
+                0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.07; }
+                50%       { transform: translateY(-14px) rotate(6deg); opacity: 0.12; }
+              }
+              @keyframes logoEntrance {
+                from { opacity: 0; transform: scale(0.7) translateY(10px); }
+                to   { opacity: 1; transform: scale(1) translateY(0); }
+              }
+              @keyframes ringPulse {
+                0%, 100% { opacity: 0.5; transform: scale(1); }
+                50%       { opacity: 1; transform: scale(1.04); }
+              }
+              @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to   { opacity: 1; transform: translateY(0); }
+              }
+            `}</style>
           </div>
         )}
 
@@ -502,5 +638,118 @@ export default function ChatInterface({
         @keyframes cursor-blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
       `}</style>
     </div>
+  );
+}
+
+// ── TypewriterHeadline ─────────────────────────────────────────────────────
+
+const HEADLINES = [
+  "How can I assist you today?",
+  "Understand your rights under Indian law.",
+  "Analyze your case with AI precision.",
+  "Draft legal documents in seconds.",
+  "Find relevant precedents instantly.",
+];
+
+function TypewriterHeadline() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [phase, setPhase] = useState<"typing" | "waiting" | "erasing">("typing");
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    const current = HEADLINES[phraseIndex];
+
+    if (phase === "typing") {
+      if (charIndex < current.length) {
+        const t = setTimeout(() => {
+          setDisplayed(current.slice(0, charIndex + 1));
+          setCharIndex(i => i + 1);
+        }, 38 + Math.random() * 20); // Slightly variable speed = natural feel
+        return () => clearTimeout(t);
+      } else {
+        // Fully typed — wait 2.4s before erasing
+        const t = setTimeout(() => setPhase("erasing"), 2400);
+        return () => clearTimeout(t);
+      }
+    }
+
+    if (phase === "erasing") {
+      if (charIndex > 0) {
+        const t = setTimeout(() => {
+          setDisplayed(current.slice(0, charIndex - 1));
+          setCharIndex(i => i - 1);
+        }, 18); // Erase faster than type
+        return () => clearTimeout(t);
+      } else {
+        // Fully erased — move to next phrase
+        setPhraseIndex(i => (i + 1) % HEADLINES.length);
+        setPhase("typing");
+      }
+    }
+  }, [phase, charIndex, phraseIndex]);
+
+  return (
+    <h2 style={{
+      fontFamily: "var(--font-display)", fontSize: "clamp(22px, 3vw, 32px)",
+      fontWeight: 500, color: "var(--navy)", textAlign: "center",
+      letterSpacing: "-0.5px", lineHeight: 1.2,
+      minHeight: "44px", display: "flex", alignItems: "center", gap: "2px",
+      animation: "fadeUp 0.6s 0.1s var(--ease-out) both",
+    }}>
+      {displayed}
+      {/* Blinking cursor */}
+      <span style={{
+        display: "inline-block", width: "2px", height: "1em",
+        background: "var(--amber)", marginLeft: "1px",
+        borderRadius: "2px",
+        animation: "cursorBlink 0.85s step-end infinite",
+      }} />
+      <style>{`
+        @keyframes cursorBlink {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0; }
+        }
+      `}</style>
+    </h2>
+  );
+}
+
+// ── SuggestionChip ─────────────────────────────────────────────────────────
+
+
+
+function SuggestionChip({
+  chip, index, onClick,
+}: {
+  chip: { label: string; icon: string; domain: string };
+  index: number;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = DOMAIN_COLORS[chip.domain] || "#6B7280";
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: "9px 16px", borderRadius: "24px", fontSize: "13px",
+        border: hovered ? `1.5px solid ${color}` : "1.5px solid var(--border-strong)",
+        background: hovered ? `${color}0D` : "var(--white)",
+        color: hovered ? color : "var(--text-secondary)",
+        cursor: "pointer", fontFamily: "var(--font-body)",
+        display: "flex", alignItems: "center", gap: "7px",
+        transition: "all 0.2s cubic-bezier(0.16,1,0.3,1)",
+        transform: hovered ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hovered ? `0 4px 14px ${color}20` : "var(--shadow-sm)",
+        animation: `fadeUp 0.5s ${0.4 + index * 0.07}s var(--ease-out) both`,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span style={{ fontSize: "14px" }}>{chip.icon}</span>
+      {chip.label}
+    </button>
   );
 }

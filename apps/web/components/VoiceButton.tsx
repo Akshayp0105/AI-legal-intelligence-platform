@@ -37,88 +37,197 @@ export default function VoiceButton({
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
 
-      {/* Recording overlay — live transcript + waveform */}
+      {/* ── Voice overlay card ──────────────────────────── */}
       {isRecording && (
         <>
-          {/* Backdrop blur pill */}
           <div style={{
-            position: "fixed", bottom: "110px",
+            position: "fixed", bottom: "100px",
             left: "50%", transform: "translateX(-50%)",
             zIndex: 100,
-            background: "rgba(10, 22, 40, 0.96)",
-            borderRadius: "24px",
-            padding: "20px 28px",
-            minWidth: "340px", maxWidth: "560px",
-            boxShadow: "0 20px 60px rgba(10,22,40,0.4)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(212,160,23,0.3)",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: "16px",
-            animation: "slideUpFade 0.3s cubic-bezier(0.16,1,0.3,1)",
+            width: "min(420px, 90vw)",
+            background: "rgba(8, 16, 32, 0.92)",
+            borderRadius: "28px",
+            padding: "28px 28px 22px",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,160,23,0.2)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: "20px",
+            animation: "voiceCardIn 0.4s cubic-bezier(0.34,1.56,0.64,1)",
           }}>
-            {/* Waveform bars */}
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", height: "40px" }}>
-              {bars.map((scale, i) => {
-                const height = 8 + (audioLevel / 100) * 28 * scale;
+
+            {/* ── Circular breathing ring + mic icon ─────────── */}
+            <div style={{ position: "relative", width: "80px", height: "80px",
+              display: "flex", alignItems: "center", justifyContent: "center" }}>
+
+              {/* Outer breathing ring — scales with audio level */}
+              <div style={{
+                position: "absolute", inset: 0, borderRadius: "50%",
+                background: `conic-gradient(
+                  rgba(239,68,68,${0.15 + audioLevel/200}) 0deg,
+                  rgba(212,160,23,${0.1 + audioLevel/300}) 120deg,
+                  rgba(239,68,68,${0.15 + audioLevel/200}) 240deg,
+                  rgba(239,68,68,${0.15 + audioLevel/200}) 360deg
+                )`,
+                transform: `scale(${1 + audioLevel / 400})`,
+                transition: "transform 0.08s ease, background 0.1s ease",
+                animation: "spinSlow 4s linear infinite",
+                filter: "blur(2px)",
+              }} />
+
+              {/* Middle glow ring */}
+              <div style={{
+                position: "absolute",
+                inset: `${6 - audioLevel/25}px`,
+                borderRadius: "50%",
+                background: `rgba(239,68,68,${0.12 + audioLevel/300})`,
+                transition: "all 0.08s ease",
+              }} />
+
+              {/* Inner solid circle */}
+              <div style={{
+                position: "absolute", inset: "14px", borderRadius: "50%",
+                background: "#EF4444",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: `0 0 ${8 + audioLevel/4}px rgba(239,68,68,0.8)`,
+                transition: "box-shadow 0.08s ease",
+              }}>
+                {/* Stop square */}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
+                  <rect x="2" y="2" width="10" height="10" rx="2.5"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* ── Waveform bars ───────────────────────────────── */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: "3px",
+              height: "48px", width: "100%", justifyContent: "center",
+            }}>
+              {Array.from({ length: 28 }, (_, i) => {
+                // Create a smooth wave pattern across bars
+                const center = 13.5;
+                const distFromCenter = Math.abs(i - center) / center;
+                const baseScale = 1 - distFromCenter * 0.5;
+                const wavePhase = Math.sin(i * 0.4) * 0.3 + 0.7;
+                const height = audioLevel > 3
+                  ? 6 + (audioLevel / 100) * 36 * baseScale * wavePhase
+                  : 4 + Math.sin(i * 0.5 + Date.now() / 400) * 2; // idle gentle wave
+                const isActive = audioLevel > 3;
                 return (
                   <div key={i} style={{
-                    width: "4px",
+                    width: "3px",
                     height: `${height}px`,
-                    borderRadius: "4px",
-                    background: audioLevel > 5
-                      ? `rgba(212,160,23,${0.5 + scale * 0.5})`
-                      : "rgba(255,255,255,0.2)",
-                    transition: "height 0.08s ease, background 0.15s ease",
-                    animationDelay: `${i * 0.06}s`,
+                    borderRadius: "3px",
+                    background: isActive
+                      ? i % 3 === 0
+                        ? `rgba(212,160,23,${0.6 + audioLevel/200})`
+                        : `rgba(239,68,68,${0.5 + audioLevel/250})`
+                      : "rgba(255,255,255,0.15)",
+                    transition: "height 0.06s ease, background 0.15s ease",
+                    flexShrink: 0,
                   }} />
                 );
               })}
             </div>
 
-            {/* Live transcript */}
+            {/* ── Live transcript ──────────────────────────────── */}
             <div style={{
-              minHeight: "24px", textAlign: "center",
-              fontSize: "15px", lineHeight: 1.5,
-              color: interimTranscript ? "#fff" : "rgba(255,255,255,0.35)",
-              fontStyle: interimTranscript ? "normal" : "italic",
-              maxWidth: "480px",
-              transition: "color 0.2s",
+              minHeight: "28px", width: "100%", textAlign: "center",
+              padding: "0 8px",
             }}>
-              {interimTranscript || "Listening... speak your legal query"}
+              {interimTranscript ? (
+                <p style={{
+                  fontSize: "16px", color: "#fff", lineHeight: 1.5,
+                  fontFamily: "var(--font-body)", margin: 0,
+                  animation: "fadeIn 0.15s ease",
+                }}>
+                  "{interimTranscript}"
+                </p>
+              ) : (
+                <p style={{
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.35)",
+                  fontStyle: "italic", margin: 0,
+                }}>
+                  {audioLevel > 5 ? "Listening..." : "Start speaking..."}
+                </p>
+              )}
             </div>
 
-            {/* Status row */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{
-                width: "8px", height: "8px", borderRadius: "50%",
-                background: "#EF4444",
-                animation: "pulse-rec 1.2s ease-in-out infinite",
-              }} />
-              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>
-                Recording • Tap mic to stop
-              </span>
-            </div>
-
-            {/* Language indicator */}
+            {/* ── Status + close ───────────────────────────────── */}
             <div style={{
-              padding: "3px 10px", borderRadius: "10px",
-              background: "rgba(212,160,23,0.15)",
-              border: "1px solid rgba(212,160,23,0.3)",
-              fontSize: "11px", color: "rgba(212,160,23,0.9)", fontWeight: 500,
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              width: "100%",
             }}>
-              {language === "ml-IN" ? "🇮🇳 Malayalam" : language === "hi-IN" ? "🇮🇳 Hindi" : "🇮🇳 English (India)"}
+              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                <span style={{
+                  width: "7px", height: "7px", borderRadius: "50%",
+                  background: "#EF4444",
+                  animation: "recPulse 1.2s ease-in-out infinite",
+                }} />
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
+                  Recording
+                </span>
+              </div>
+
+              {/* Language pill */}
+              <div style={{
+                padding: "3px 10px", borderRadius: "10px",
+                background: "rgba(212,160,23,0.12)",
+                border: "1px solid rgba(212,160,23,0.25)",
+                fontSize: "11px", color: "rgba(212,160,23,0.85)", fontWeight: 500,
+              }}>
+                {language === "ml-IN" ? "🇮🇳 Malayalam"
+                  : language === "hi-IN" ? "🇮🇳 Hindi"
+                  : "🇮🇳 English"}
+              </div>
+
+              {/* Tap to stop hint */}
+              <button
+                onClick={toggleRecording}
+                style={{
+                  fontSize: "12px", color: "rgba(255,255,255,0.35)",
+                  background: "none", border: "none", cursor: "pointer",
+                  padding: "4px 8px", borderRadius: "6px",
+                  transition: "color 0.15s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
+                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}
+              >
+                Stop ✕
+              </button>
             </div>
           </div>
 
-          {/* Dimmed backdrop */}
+          {/* ── Backdrop ─────────────────────────────────────── */}
           <div
             onClick={toggleRecording}
             style={{
               position: "fixed", inset: 0, zIndex: 99,
-              background: "rgba(0,0,0,0.15)",
-              backdropFilter: "blur(1px)",
-              animation: "fadeIn 0.2s ease",
+              background: "rgba(0,0,0,0.25)",
+              backdropFilter: "blur(3px)",
+              WebkitBackdropFilter: "blur(3px)",
+              animation: "fadeIn 0.25s ease",
             }}
           />
+
+          <style>{`
+            @keyframes voiceCardIn {
+              from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.95); }
+              to   { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+            }
+            @keyframes spinSlow {
+              from { transform: rotate(0deg) scale(${1 + audioLevel / 400}); }
+              to   { transform: rotate(360deg) scale(${1 + audioLevel / 400}); }
+            }
+            @keyframes recPulse {
+              0%,100% { opacity:1; transform:scale(1); }
+              50%      { opacity:0.3; transform:scale(0.65); }
+            }
+            @keyframes fadeIn {
+              from { opacity:0; } to { opacity:1; }
+            }
+          `}</style>
         </>
       )}
 
@@ -133,57 +242,21 @@ export default function VoiceButton({
           border: "none", cursor: disabled ? "not-allowed" : "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           flexShrink: 0,
-          background: isError
-            ? "#FEF2F2"
-            : isRecording
-            ? "#EF4444"
-            : "transparent",
-          transition: "all 0.2s cubic-bezier(0.16,1,0.3,1)",
-          transform: isRecording ? "scale(1.08)" : "scale(1)",
+          background: isRecording ? "#EF4444" : isError ? "#FEF2F2" : "transparent",
+          transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+          transform: isRecording ? "scale(1.1)" : "scale(1)",
+          boxShadow: isRecording ? "0 0 0 6px rgba(239,68,68,0.12), 0 0 0 12px rgba(239,68,68,0.05)" : "none",
         }}
-        onMouseEnter={e => {
-          if (!isRecording && !disabled)
-            e.currentTarget.style.background = "rgba(10,22,40,0.06)";
-        }}
-        onMouseLeave={e => {
-          if (!isRecording)
-            e.currentTarget.style.background = "transparent";
-        }}
+        onMouseEnter={e => { if (!isRecording && !disabled) { e.currentTarget.style.background="rgba(10,22,40,0.07)"; e.currentTarget.style.transform="scale(1.08)"; }}}
+        onMouseLeave={e => { if (!isRecording) { e.currentTarget.style.background="transparent"; e.currentTarget.style.transform="scale(1)"; }}}
       >
-        {/* Ripple ring when recording */}
-        {isRecording && (
-          <>
-            <span style={{
-              position: "absolute", inset: "-6px", borderRadius: "16px",
-              border: "2px solid rgba(239,68,68,0.4)",
-              animation: "ripple 1.5s ease-out infinite",
-            }} />
-            <span style={{
-              position: "absolute", inset: "-12px", borderRadius: "20px",
-              border: "1.5px solid rgba(239,68,68,0.2)",
-              animation: "ripple 1.5s ease-out 0.4s infinite",
-            }} />
-          </>
-        )}
-
-        {/* Icon: mic or stop */}
         {isRecording ? (
-          // Stop square icon
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
-            <rect x="1" y="1" width="12" height="12" rx="2"/>
-          </svg>
-        ) : isError ? (
-          // Error X icon
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="#EF4444" strokeWidth="2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
+          <div style={{
+            width: "12px", height: "12px", borderRadius: "3px", background: "white",
+          }} />
         ) : (
-          // Microphone icon
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-            stroke={disabled ? "#CBD5E0" : "#6B7280"}
+            stroke={disabled ? "#CBD5E0" : isError ? "#EF4444" : "#6B7280"}
             strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>

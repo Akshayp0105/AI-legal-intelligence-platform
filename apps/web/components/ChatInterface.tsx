@@ -48,6 +48,7 @@ interface Message {
 interface ChatInterfaceProps {
   onAnalysisComplete?: (result: AnalysisResult) => void;
   uploadedDocIds?: string[];
+  initialMessages?: Message[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,10 +86,17 @@ const DOMAIN_COLORS: Record<string, string> = {
 export default function ChatInterface({
   onAnalysisComplete,
   uploadedDocIds = [],
+  initialMessages = [],
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialMessages.length > 0 && messages.length === 0) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages]);
   const [statusText, setStatusText] = useState("");
   const [streamingText, setStreamingText] = useState("");
   const [detectedDomain, setDetectedDomain] = useState("");

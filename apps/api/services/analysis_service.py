@@ -197,7 +197,7 @@ async def analyze(message: str, session_id: str, history: list,
 
 
 async def analyze_stream(message: str, session_id: str, history: list,
-                         language: str = "en", user_role: str = "public") -> AsyncGenerator[str, None]:
+                         language: str = "en", user_role: str = "public", db: AsyncSession = None) -> AsyncGenerator[str, None]:
     """Streaming analysis — yields SSE events."""
 
     domain = detect_domain(message, history)
@@ -248,6 +248,18 @@ async def analyze_stream(message: str, session_id: str, history: list,
             }
 
         yield f"data: {json.dumps({'type': 'complete', 'data': result})}\n\n"
+        
+        if db:
+            from services.case_service import get_or_create_case, save_message
+            try:
+                case = await get_or_create_case(db, session_id, message, domain)
+                await save_message(db, case, session_id, "user", message, domain=domain)
+                await save_message(db, case, session_id, "assistant",
+                                   result.get("conversational_reply",""), analysis=result, domain=domain)
+                await db.commit()
+            except Exception as e:
+                logger.error(f"Stream DB save failed: {e}")
+                await db.rollback()
 
     except Exception as e:
         logger.error(f"Stream error: {e}")

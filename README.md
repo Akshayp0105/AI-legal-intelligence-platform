@@ -1,4 +1,4 @@
 ## AI LEGAL INTELLIGENCE PLATFORM FOR GUIDANCE (under construction) 
 ##
-Platform 
+Platform for guidance 
 

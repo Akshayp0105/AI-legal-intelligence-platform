@@ -1,1 +1,3 @@
 # AI LEGAL INTELLIGENCE PLATFORM FOR GUIDANCE (under construction) 
+
+Last updated: 2026-06-10

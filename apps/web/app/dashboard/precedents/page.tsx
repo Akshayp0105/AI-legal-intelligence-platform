@@ -1,3 +1,4 @@
+// Precedents v1.0.1 - Enhanced search
 "use client";
 
 import { Scale, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";

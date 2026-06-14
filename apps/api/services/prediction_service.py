@@ -1,3 +1,4 @@
+# Prediction service v1.0.1 - Enhanced scoring
 import json
 import logging
 import google.generativeai as genai

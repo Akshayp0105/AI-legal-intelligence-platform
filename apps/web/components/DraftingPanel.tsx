@@ -1,5 +1,6 @@
 "use client";
 
+// DraftingPanel v1.0.1 - Enhanced document templates
 import { useState } from "react";
 import { FileSignature, Download, Loader2, Sparkles, Languages } from "lucide-react";
 

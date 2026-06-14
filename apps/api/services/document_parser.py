@@ -1,3 +1,4 @@
+# Document parser v1.0.1 - Optimization improvements
 import fitz
 import pytesseract
 from PIL import Image

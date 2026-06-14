@@ -14,6 +14,10 @@ function getSessionId(): string {
   return id;
 }
 
+function getApiInfo(): Promise<any> {
+  return fetch(`${API}/api/info`).then(r => r.json()).catch(() => null);
+}
+
 function DashboardContent() {
   const { analysisResult, setAnalysisResult } = useCaseStore();
   const searchParams = useSearchParams();

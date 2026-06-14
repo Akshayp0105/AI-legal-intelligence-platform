@@ -1,3 +1,4 @@
+// Settings v1.0.1 - Enhanced options
 "use client";
 
 import { useUser, useClerk } from "@clerk/nextjs";

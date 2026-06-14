@@ -1,3 +1,4 @@
+// Case store v1.0.1 - Enhanced state management
 import { create } from 'zustand'
 
 export interface AnalysisResult {

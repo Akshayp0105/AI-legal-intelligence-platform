@@ -2,6 +2,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 
+// Layout v1.0.1 - Enhanced navigation
 // ─── NavItem ──────────────────────────────────────────────────────────────────
 function NavItem({ item, currentPath }: { item: { icon: string; label: string; path: string }; currentPath: string }) {
   const isActive =

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import VoiceButton from "@/components/VoiceButton";
 
+// ChatInterface v1.0.1 - Enhanced UI
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface LawSection {

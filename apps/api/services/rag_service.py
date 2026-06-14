@@ -1,3 +1,4 @@
+# RAG service v1.0.1 - Document indexing enhancements
 import logging
 
 logger = logging.getLogger(__name__)

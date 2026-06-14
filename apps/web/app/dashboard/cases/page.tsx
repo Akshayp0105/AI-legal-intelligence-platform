@@ -1,3 +1,4 @@
+// Cases v1.0.1 - Enhanced filtering
 "use client";
 
 import { FolderOpen, FileText, Clock, TrendingUp } from "lucide-react";

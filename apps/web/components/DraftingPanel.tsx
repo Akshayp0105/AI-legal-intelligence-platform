@@ -1,3 +1,4 @@
+// DraftingPanel v1.0.1 - Enhanced document templates
 "use client";
 
 // DraftingPanel v1.0.1 - Enhanced document templates

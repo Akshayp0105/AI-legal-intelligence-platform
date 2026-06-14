@@ -1,3 +1,4 @@
+# Feedback schemas v1.0.1 - Enhanced validation
 from pydantic import BaseModel, Field
 from typing import Optional
 

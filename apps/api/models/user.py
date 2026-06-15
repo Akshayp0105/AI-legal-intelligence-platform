@@ -19,4 +19,5 @@ class User(Base):
     name = Column(String, nullable=True)
     role = Column(Enum(UserRole, name="userrole_enum"), default=UserRole.public, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    last_login = Column(DateTime(timezone=True), nullable=True)
     subscription_tier = Column(String, default="free", nullable=False)

@@ -1,6 +1,8 @@
 import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db_session
 from core.auth import get_current_user
@@ -10,8 +12,10 @@ from schemas.drafting import DraftingRequest, DraftingImproveRequest, DraftingTr
 from services.drafting_service import drafting_service
 
 router = APIRouter(prefix="/drafting", tags=["Drafting"])
+limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/generate", response_model=DraftResponse)
+@limiter.limit("5/minute")
 async def generate_draft_endpoint(
     request: DraftingRequest,
     req: Request,

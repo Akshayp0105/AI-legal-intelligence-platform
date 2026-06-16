@@ -2,18 +2,23 @@
 "use client";
 
 import { useSpeechToText, RecordingState } from "@/hooks/useSpeechToText";
+import { useRef, useEffect } from "react";
 
 interface VoiceButtonProps {
   onTranscript: (text: string) => void;
   language?: string;
   disabled?: boolean;
+  "aria-label"?: string;
 }
 
 export default function VoiceButton({
   onTranscript,
   language = "en-IN",
   disabled = false,
+  "aria-label": ariaLabel = "Voice input for legal queries",
 }: VoiceButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  
   const {
     recordingState,
     interimTranscript,
@@ -26,10 +31,25 @@ export default function VoiceButton({
     onError: (err) => console.warn("Voice error:", err),
   });
 
-  if (!isSupported) return null;
-
   const isRecording = recordingState === "recording";
   const isError = recordingState === "error";
+
+  // Keyboard shortcut: Ctrl+Shift+V to toggle recording
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "V" && isSupported && !disabled) {
+        e.preventDefault();
+        toggleRecording();
+      }
+      if (e.key === "Escape" && isRecording) {
+        toggleRecording();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isSupported, disabled, isRecording, toggleRecording]);
+
+  if (!isSupported) return null;
 
   // Dynamic bar heights based on audio level
   const bars = [0.4, 0.7, 1.0, 0.7, 0.4, 0.8, 0.5, 0.9, 0.6, 0.4];
@@ -233,9 +253,12 @@ export default function VoiceButton({
 
       {/* The mic button itself */}
       <button
+        ref={buttonRef}
         onClick={toggleRecording}
         disabled={disabled}
-        title={isRecording ? "Stop recording" : "Voice input"}
+        aria-label={ariaLabel}
+        aria-pressed={isRecording}
+        title={isRecording ? "Stop recording (Esc)" : "Voice input (Ctrl+Shift+V)"}
         style={{
           position: "relative", zIndex: 101,
           width: "36px", height: "36px", borderRadius: "10px",

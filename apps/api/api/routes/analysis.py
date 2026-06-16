@@ -1,18 +1,19 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
+from core.logging import get_logger
 
 from core.database import get_db_session
 from services.case_service import get_or_create_case, save_message
 from services.analysis_service import analyze, analyze_stream
 
 router = APIRouter(tags=["Analysis"])
+logger = get_logger(__name__)
 
 class AnalyzeRequest(BaseModel):
-    message: str = Field(..., description="User message to analyze")
+    message: str = Field(..., description="User message to analyze", min_length=1, max_length=2000)
     session_id: str = Field(default="default", description="Session ID")
     chat_history: List[Dict[str, Any]] = Field(default=[], description="Previous chat history")
     language: str = Field(default="en", description="Language code")
@@ -20,6 +21,9 @@ class AnalyzeRequest(BaseModel):
 
 @router.post("/analysis/analyze")
 async def analyze_endpoint(request: AnalyzeRequest, db: AsyncSession = Depends(get_db_session)):
+    if not request.message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    
     result = await analyze(
         message=request.message,
         session_id=request.session_id,
@@ -59,7 +63,7 @@ async def analyze_endpoint(request: AnalyzeRequest, db: AsyncSession = Depends(g
 
     except Exception as e:
         # Never let DB errors break the chat response
-        logging.getLogger("lexai").error(f"DB save failed: {e}")
+        logger.error(f"DB save failed: {e}")
         await db.rollback()
     # ── END SAVE ─────────────────────────────────────────────
 

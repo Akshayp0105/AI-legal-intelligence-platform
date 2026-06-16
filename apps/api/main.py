@@ -7,6 +7,7 @@ from slowapi.util import get_remote_address
 import os
 from core.qdrant import init_qdrant
 from core.logging import setup_logging
+from core.database import health_check as get_db_health
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
@@ -71,7 +72,12 @@ app.include_router(cases_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "message": "LexAI API is running"}
+    db_healthy = await get_db_health()
+    return {
+        "status": "ok",
+        "message": "LexAI API is running",
+        "database": "healthy" if db_healthy else "unhealthy"
+    }
 
 @app.get("/api/info")
 async def api_info():

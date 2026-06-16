@@ -1,8 +1,11 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import text
+from core.logging import get_logger
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:password@localhost:5432/lexaidb")
+logger = get_logger(__name__)
 
 # Create Async Engine
 engine = create_async_engine(
@@ -11,6 +14,7 @@ engine = create_async_engine(
     future=True,
     pool_size=20,
     max_overflow=10,
+    pool_pre_ping=True,
 )
 
 # Async Session Factory
@@ -31,3 +35,13 @@ async def get_db_session() -> AsyncSession:
             yield session
         finally:
             await session.close()
+
+async def health_check() -> bool:
+    """Check database connectivity"""
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+            return True
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        return False

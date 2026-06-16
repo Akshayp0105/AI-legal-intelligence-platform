@@ -2,8 +2,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
 import os
 from core.qdrant import init_qdrant
+from core.logging import setup_logging
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
+setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

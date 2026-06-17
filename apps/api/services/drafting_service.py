@@ -9,6 +9,7 @@ from docx import Document
 logger = logging.getLogger(__name__)
 
 MAX_RETRIES = 3
+API_TIMEOUT = 30
 
 def get_gemini_model():
     return genai.GenerativeModel("gemini-2.0-flash-001")

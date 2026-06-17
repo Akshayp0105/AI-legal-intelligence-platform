@@ -2,4 +2,8 @@
 Last updated: 2026-06-17
 
 ## Overview
-AI-powered legal document drafting platform for Indian courts. 
+AI-powered legal document drafting platform for Indian courts.
+
+## Features
+- Legal document generation
+- Multi-language support 

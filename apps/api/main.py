@@ -90,4 +90,4 @@ async def api_info():
 
 @app.get("/api/status")
 async def system_status():
-    return {"uptime": "active", "services": ["api", "database", "storage", "ai"]}
+    return {"uptime": "active", "services": ["api", "database", "storage", "ai"], "environment": "production"}

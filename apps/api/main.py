@@ -13,6 +13,9 @@ from core.database import health_check as get_db_health
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
 setup_logging()
 
+# Configuration constants
+REQUEST_TIMEOUT = 30  # seconds
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize resources

@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="LexAI API",
     description="Backend API for LexAI Legal Intelligence Platform",
-    version="1.0.0",
+    version="1.2.0",
     lifespan=lifespan,
 )
 

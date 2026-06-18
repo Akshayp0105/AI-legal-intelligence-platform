@@ -86,7 +86,7 @@ async def health_check():
 
 @app.get("/api/info")
 async def api_info():
-    return {"name": "LexAI", "version": "1.1.0", "updated": "2026-06-15"}
+    return {"name": "LexAI", "version": "1.2.0", "updated": "2026-06-18"}
 
 @app.get("/api/status")
 async def system_status():

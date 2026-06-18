@@ -80,7 +80,8 @@ async def health_check():
     return {
         "status": "ok",
         "message": "LexAI API is running",
-        "database": "healthy" if db_healthy else "unhealthy"
+        "database": "healthy" if db_healthy else "unhealthy",
+        "version": "1.2.0"
     }
 
 @app.get("/api/info")

@@ -6,4 +6,5 @@ AI-powered legal document drafting platform for Indian courts.
 
 ## Features
 - Legal document generation
-- Multi-language support 
+- Multi-language support
+- AI-powered analysis

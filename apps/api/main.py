@@ -10,6 +10,7 @@ from core.logging import setup_logging
 from core.database import health_check as get_db_health
 from core.middleware import RequestIDMiddleware
 from core.slow_request import SlowRequestMiddleware
+from core.errors import register_error_handlers
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
@@ -46,6 +47,8 @@ app = FastAPI(
     lifespan=lifespan,
     openapi_tags=tags_metadata,
 )
+
+register_error_handlers(app)
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)

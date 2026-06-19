@@ -91,6 +91,16 @@ services:
       - api
     restart: unless-stopped
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: lexai_mailhog
+    profiles:
+      - dev
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   qdrant_data:

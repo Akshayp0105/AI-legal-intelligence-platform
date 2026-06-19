@@ -26,11 +26,24 @@ async def lifespan(app: FastAPI):
     # Shutdown: Clean up resources
     print("Shutting down LexAI API...")
 
+tags_metadata = [
+    {"name": "documents", "description": "Upload, manage, and retrieve legal documents."},
+    {"name": "knowledge", "description": "Search and manage the legal knowledge base."},
+    {"name": "analysis", "description": "AI-powered legal document analysis."},
+    {"name": "precedents", "description": "Find and reference case precedents."},
+    {"name": "strategy", "description": "Legal strategy recommendations."},
+    {"name": "analytics", "description": "Usage analytics and insights."},
+    {"name": "drafting", "description": "AI-assisted legal document drafting."},
+    {"name": "feedback", "description": "User feedback and ratings."},
+    {"name": "cases", "description": "Case management and tracking."},
+]
+
 app = FastAPI(
     title="LexAI API",
     description="Backend API for LexAI Legal Intelligence Platform",
     version="1.2.0",
     lifespan=lifespan,
+    openapi_tags=tags_metadata,
 )
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")

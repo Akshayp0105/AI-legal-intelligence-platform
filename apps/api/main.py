@@ -9,6 +9,7 @@ from core.qdrant import init_qdrant
 from core.logging import setup_logging
 from core.database import health_check as get_db_health
 from core.middleware import RequestIDMiddleware
+from core.slow_request import SlowRequestMiddleware
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
@@ -59,6 +60,7 @@ origins = [
     os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
 
+app.add_middleware(SlowRequestMiddleware)
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(
     CORSMiddleware,

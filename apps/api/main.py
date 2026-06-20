@@ -10,6 +10,7 @@ from core.logging import setup_logging
 from core.database import health_check as get_db_health, detailed_health_check, get_pool_status
 from core.middleware import RequestIDMiddleware, APIVersionMiddleware
 from core.slow_request import SlowRequestMiddleware
+from core.cache import CacheControlMiddleware
 from core.errors import register_error_handlers
 
 # Initialize rate limiter
@@ -64,6 +65,7 @@ origins = [
 ]
 
 app.add_middleware(APIVersionMiddleware)
+app.add_middleware(CacheControlMiddleware)
 app.add_middleware(SlowRequestMiddleware)
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(

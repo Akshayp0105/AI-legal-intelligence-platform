@@ -5,6 +5,7 @@ from starlette.requests import Request
 
 logger = logging.getLogger("slow_requests")
 SLOW_REQUEST_THRESHOLD_MS = 1000  # 1 second
+VERY_SLOW_REQUEST_THRESHOLD_MS = 5000  # 5 seconds
 
 
 class SlowRequestMiddleware(BaseHTTPMiddleware):
@@ -15,7 +16,12 @@ class SlowRequestMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         elapsed_ms = round((time.time() - start) * 1000, 2)
 
-        if elapsed_ms > SLOW_REQUEST_THRESHOLD_MS:
+        if elapsed_ms > VERY_SLOW_REQUEST_THRESHOLD_MS:
+            logger.error(
+                f"VERY SLOW REQUEST: {request.method} {request.url.path} "
+                f"took {elapsed_ms}ms (threshold: {VERY_SLOW_REQUEST_THRESHOLD_MS}ms)"
+            )
+        elif elapsed_ms > SLOW_REQUEST_THRESHOLD_MS:
             logger.warning(
                 f"SLOW REQUEST: {request.method} {request.url.path} "
                 f"took {elapsed_ms}ms (threshold: {SLOW_REQUEST_THRESHOLD_MS}ms)"

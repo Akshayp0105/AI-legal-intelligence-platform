@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+*.pyo
+venv
+.venv
+env
+
+# Build outputs
+.next
+.out
+dist
+build
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose*.yml
+*.md
+LICENSE
+
+# Python
+*.egg-info
+.pytest_cache
+
+# Tests
+test_result.json
+
+# Gemini
+.gemini

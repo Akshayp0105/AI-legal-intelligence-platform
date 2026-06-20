@@ -29,20 +29,35 @@ AsyncSessionLocal = async_sessionmaker(
 
 Base = declarative_base()
 
+# Pool monitoring thresholds
+POOL_WARNING_THRESHOLD = 0.8  # Warn when 80% of connections are in use
+
 
 def get_pool_status() -> dict:
     """Get connection pool statistics."""
     pool = engine.pool
-    return {
-        "pool_size": pool.size(),
+    checked_out = pool.checkedout()
+    pool_size = pool.size()
+    max_size = pool_size + pool.overflow()
+    utilization = round(checked_out / max_size * 100, 1) if max_size > 0 else 0
+
+    status = {
+        "pool_size": pool_size,
+        "max_overflow": pool.overflow(),
         "checked_in": pool.checkedin(),
-        "checked_out": pool.checkedout(),
+        "checked_out": checked_out,
         "overflow": pool.overflow(),
+        "utilization_pct": utilization,
     }
+
+    if utilization > POOL_WARNING_THRESHOLD * 100:
+        logger.warning(f"High pool utilization: {utilization}% ({checked_out}/{max_size})")
+
+    return status
 
 
 async def get_db_session() -> AsyncSession:
-    """Dependency for getting async database sessions"""
+    """Dependency for getting async database sessions."""
     async with AsyncSessionLocal() as session:
         try:
             yield session

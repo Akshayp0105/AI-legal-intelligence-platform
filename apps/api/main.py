@@ -7,7 +7,7 @@ from slowapi.util import get_remote_address
 import os
 from core.qdrant import init_qdrant
 from core.logging import setup_logging
-from core.database import health_check as get_db_health, detailed_health_check
+from core.database import health_check as get_db_health, detailed_health_check, get_pool_status
 from core.middleware import RequestIDMiddleware, APIVersionMiddleware
 from core.slow_request import SlowRequestMiddleware
 from core.errors import register_error_handlers
@@ -113,3 +113,7 @@ async def api_info():
 @app.get("/api/status")
 async def system_status():
     return {"uptime": "active", "services": ["api", "database", "storage", "ai"], "environment": "production"}
+
+@app.get("/api/pool")
+async def pool_status():
+    return {"pool": get_pool_status()}

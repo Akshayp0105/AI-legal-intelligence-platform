@@ -11,6 +11,7 @@ from core.database import health_check as get_db_health, detailed_health_check, 
 from core.middleware import RequestIDMiddleware, APIVersionMiddleware
 from core.slow_request import SlowRequestMiddleware
 from core.cache import CacheControlMiddleware
+from core.compression import GZipMiddleware
 from core.errors import register_error_handlers
 
 # Initialize rate limiter
@@ -65,6 +66,7 @@ origins = [
 ]
 
 app.add_middleware(APIVersionMiddleware)
+app.add_middleware(GZipMiddleware)
 app.add_middleware(CacheControlMiddleware)
 app.add_middleware(SlowRequestMiddleware)
 app.add_middleware(RequestIDMiddleware)

@@ -8,7 +8,7 @@ import os
 from core.qdrant import init_qdrant
 from core.logging import setup_logging
 from core.database import health_check as get_db_health
-from core.middleware import RequestIDMiddleware
+from core.middleware import RequestIDMiddleware, APIVersionMiddleware
 from core.slow_request import SlowRequestMiddleware
 from core.errors import register_error_handlers
 
@@ -63,6 +63,7 @@ origins = [
     os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
 
+app.add_middleware(APIVersionMiddleware)
 app.add_middleware(SlowRequestMiddleware)
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(

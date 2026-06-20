@@ -2,9 +2,22 @@ import time
 import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 from core.logging import get_logger
 
 logger = get_logger("middleware")
+
+API_VERSION = "1.2.0"
+API_VERSION_HEADER = "X-API-Version"
+
+
+class APIVersionMiddleware(BaseHTTPMiddleware):
+    """Middleware to attach the API version header to every response."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers[API_VERSION_HEADER] = API_VERSION
+        return response
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):

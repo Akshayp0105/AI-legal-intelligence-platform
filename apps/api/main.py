@@ -112,7 +112,46 @@ async def health_check():
 
 @app.get("/api/info")
 async def api_info():
-    return {"name": "LexAI", "version": "1.2.0", "updated": "2026-06-18"}
+    return {
+        "name": "LexAI",
+        "version": "1.2.0",
+        "updated": "2026-06-18",
+        "docs_url": "/docs",
+        "openapi_url": "/openapi.json",
+    }
+
+@app.get("/api/discovery")
+async def api_discovery():
+    return {
+        "service": "LexAI API",
+        "version": "1.2.0",
+        "endpoints": {
+            "health": {"method": "GET", "path": "/health", "description": "Health check with dependencies"},
+            "pool": {"method": "GET", "path": "/api/pool", "description": "Database pool status"},
+            "info": {"method": "GET", "path": "/api/info", "description": "API version info"},
+            "docs": {"method": "GET", "path": "/docs", "description": "Interactive API documentation"},
+            "openapi": {"method": "GET", "path": "/openapi.json", "description": "OpenAPI specification"},
+            "analyze": {"method": "POST", "path": "/api/v1/analysis/analyze", "description": "Analyze a legal query"},
+            "analyze_stream": {"method": "POST", "path": "/api/v1/analysis/analyze/stream", "description": "Stream analysis via SSE"},
+            "upload": {"method": "POST", "path": "/api/v1/documents/upload", "description": "Upload legal documents"},
+            "search_knowledge": {"method": "POST", "path": "/api/v1/knowledge/search", "description": "Search legal knowledge base"},
+            "search_precedents": {"method": "GET", "path": "/api/v1/precedents/search", "description": "Search court precedents"},
+            "generate_arguments": {"method": "POST", "path": "/api/v1/arguments/generate", "description": "Generate legal arguments"},
+            "analyze_gaps": {"method": "POST", "path": "/api/v1/gaps/analyze", "description": "Analyze legal gaps"},
+            "predict": {"method": "POST", "path": "/api/v1/analytics/predict", "description": "Predict case strength"},
+            "dashboard": {"method": "GET", "path": "/api/v1/analytics/dashboard", "description": "Dashboard analytics"},
+            "draft": {"method": "POST", "path": "/api/v1/drafting/generate", "description": "Generate legal document"},
+            "improve_draft": {"method": "POST", "path": "/api/v1/drafting/improve", "description": "Improve existing draft"},
+            "translate_draft": {"method": "POST", "path": "/api/v1/drafting/translate", "description": "Translate legal document"},
+            "feedback": {"method": "POST", "path": "/api/v1/feedback", "description": "Submit feedback"},
+            "cases": {"method": "GET", "path": "/api/v1/cases", "description": "List cases"},
+        },
+        "rate_limits": {
+            "default": "100/hour",
+            "analysis": "30/minute",
+            "drafting": "5/minute",
+        },
+    }
 
 @app.get("/api/status")
 async def system_status():

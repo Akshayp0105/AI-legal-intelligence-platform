@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from core.logging import get_logger
+from core.rate_limits import RATE_LIMITS
 
 from core.database import get_db_session
 from services.case_service import get_or_create_case, save_message
@@ -11,6 +14,7 @@ from services.analysis_service import analyze, analyze_stream
 
 router = APIRouter(tags=["Analysis"])
 logger = get_logger(__name__)
+limiter = Limiter(key_func=get_remote_address)
 
 class AnalyzeRequest(BaseModel):
     message: str = Field(..., description="User message to analyze", min_length=1, max_length=2000)
@@ -20,7 +24,8 @@ class AnalyzeRequest(BaseModel):
     user_role: str = Field(default="public", description="User role")
 
 @router.post("/analysis/analyze")
-async def analyze_endpoint(request: AnalyzeRequest, db: AsyncSession = Depends(get_db_session)):
+@limiter.limit(RATE_LIMITS["analysis"])
+async def analyze_endpoint(request: AnalyzeRequest, req: Request, db: AsyncSession = Depends(get_db_session)):
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
@@ -70,7 +75,8 @@ async def analyze_endpoint(request: AnalyzeRequest, db: AsyncSession = Depends(g
     return result
 
 @router.post("/analysis/analyze/stream")
-async def analyze_stream_endpoint(request: AnalyzeRequest, db: AsyncSession = Depends(get_db_session)):
+@limiter.limit(RATE_LIMITS["analysis_stream"])
+async def analyze_stream_endpoint(request: AnalyzeRequest, req: Request, db: AsyncSession = Depends(get_db_session)):
     return StreamingResponse(
         analyze_stream(
             message=request.message,

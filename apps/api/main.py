@@ -7,7 +7,7 @@ from slowapi.util import get_remote_address
 import os
 from core.qdrant import init_qdrant
 from core.logging import setup_logging
-from core.database import health_check as get_db_health
+from core.database import health_check as get_db_health, detailed_health_check
 from core.middleware import RequestIDMiddleware, APIVersionMiddleware
 from core.slow_request import SlowRequestMiddleware
 from core.errors import register_error_handlers
@@ -97,12 +97,13 @@ app.include_router(cases_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():
-    db_healthy = await get_db_health()
+    deps = await detailed_health_check()
+    overall = all(d["status"] == "healthy" for d in deps.values() if isinstance(d, dict) and "status" in d)
     return {
-        "status": "ok",
+        "status": "ok" if overall else "degraded",
         "message": "LexAI API is running",
-        "database": "healthy" if db_healthy else "unhealthy",
-        "version": "1.2.0"
+        "version": "1.2.0",
+        "dependencies": deps,
     }
 
 @app.get("/api/info")

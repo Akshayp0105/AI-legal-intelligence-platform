@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-import redis
+import redis.asyncio as aioredis
 
 from core.intent_classifier import ClassifiedIntent
 
@@ -13,7 +13,7 @@ import os
 
 try:
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    redis_client = redis.from_url(redis_url, decode_responses=True)
+    redis_client = aioredis.from_url(redis_url, decode_responses=True)
 except Exception as e:
     redis_client = None
     logger.warning(f"Failed to initialize Redis in memory: {e}")
@@ -32,7 +32,7 @@ class ConversationMemoryManager:
     async def get_or_create_session(self, session_id: str, user_id: str) -> ConversationSession:
         if redis_client:
             try:
-                data = redis_client.get(f"session:{session_id}")
+                data = await redis_client.get(f"session:{session_id}")
                 if data:
                     return ConversationSession.model_validate_json(data)
             except Exception as e:
@@ -45,7 +45,7 @@ class ConversationMemoryManager:
     async def _save_session(self, session: ConversationSession):
         if redis_client:
             try:
-                redis_client.setex(f"session:{session.session_id}", 3600, session.model_dump_json())
+                await redis_client.setex(f"session:{session.session_id}", 3600, session.model_dump_json())
             except Exception as e:
                 logger.warning(f"Redis set failed in _save_session: {e}")
 

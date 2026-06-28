@@ -4,20 +4,18 @@ import hashlib
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import google.generativeai as genai
-import redis
+import redis.asyncio as aioredis
 
 logger = logging.getLogger(__name__)
 
 import os
 
-# Initialize Redis client synchronously
 try:
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    if redis_url.startswith("redis://"):
-        redis_client = redis.from_url(redis_url, decode_responses=True)
+    if redis_url.startswith("redis://") or redis_url.startswith("rediss://"):
+        redis_client = aioredis.from_url(redis_url, decode_responses=True)
     else:
-        # Fallback if REDIS_URL is just a host
-        redis_client = redis.Redis(host=redis_url, port=6379, db=0, decode_responses=True)
+        redis_client = aioredis.Redis(host=redis_url, port=6379, db=0, decode_responses=True)
 except Exception as e:
     redis_client = None
     logger.warning(f"Failed to initialize Redis in intent_classifier: {e}")
@@ -66,7 +64,7 @@ async def classify_intent(user_message: str, chat_history: Optional[List[Dict[st
     
     if redis_client:
         try:
-            cached_intent = redis_client.get(cache_key)
+            cached_intent = await redis_client.get(cache_key)
             if cached_intent:
                 logger.info("Returning cached intent classification")
                 return ClassifiedIntent.model_validate_json(cached_intent)
@@ -121,7 +119,7 @@ Rules:
         # cache the result with TTL 3600 seconds
         if redis_client:
             try:
-                redis_client.setex(cache_key, 3600, intent.model_dump_json())
+                await redis_client.setex(cache_key, 3600, intent.model_dump_json())
             except Exception as e:
                 logger.warning(f"Redis set failed in classify_intent: {e}")
                 

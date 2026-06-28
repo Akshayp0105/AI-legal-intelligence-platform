@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import os
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel
@@ -12,13 +13,14 @@ from models.precedent import CaseJudgment
 from services.precedents.scraper import scrape_and_index_cases, fetch_cases_from_kanoon
 from services.precedents.matcher import analyze_similar_cases
 
-import redis
+import redis.asyncio as aioredis
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = aioredis.from_url(redis_url, decode_responses=True)
 CACHE_TTL = 86400  # 24 hours
 
 class AnalyzeRequest(BaseModel):
@@ -76,7 +78,7 @@ async def analyze_precedents(request: AnalyzeRequest):
     
     # Check cache
     try:
-        cached_result = redis_client.get(cache_key)
+        cached_result = await redis_client.get(cache_key)
         if cached_result:
             return AnalyzeResponse(
                 similar_cases=json.loads(cached_result),
@@ -100,7 +102,7 @@ async def analyze_precedents(request: AnalyzeRequest):
         
     # Store in cache
     try:
-        redis_client.setex(cache_key, CACHE_TTL, json.dumps(similar_cases))
+        await redis_client.setex(cache_key, CACHE_TTL, json.dumps(similar_cases))
     except Exception as e:
         logger.warning(f"Redis cache set failed: {e}")
         

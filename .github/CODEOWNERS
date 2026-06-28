@@ -1,0 +1,19 @@
+# Code Owners for LexAI
+# These owners will be automatically requested for review
+# when someone opens a pull request.
+
+# Default owners for everything
+* @Akshayp0105
+
+# API Backend
+/apps/api/ @Akshayp0105
+
+# Web Frontend
+/apps/web/ @Akshayp0105
+
+# Shared Package
+/packages/ @Akshayp0105
+
+# Infrastructure
+/docker-compose.yml @Akshayp0105
+/.github/ @Akshayp0105

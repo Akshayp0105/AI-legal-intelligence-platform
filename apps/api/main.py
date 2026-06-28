@@ -155,7 +155,8 @@ async def api_discovery():
 
 @app.get("/api/status")
 async def system_status():
-    return {"uptime": "active", "services": ["api", "database", "storage", "ai"], "environment": "production"}
+    environment = os.getenv("ENVIRONMENT", "development")
+    return {"uptime": "active", "services": ["api", "database", "storage", "ai"], "environment": environment}
 
 @app.get("/api/pool")
 async def pool_status():

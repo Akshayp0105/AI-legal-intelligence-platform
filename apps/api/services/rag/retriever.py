@@ -87,7 +87,7 @@ async def embed_query(text: str) -> list[float]:
 
 async def search_postgres_fulltext(query: str, acts: List[str], limit: int) -> List[QdrantMockResult]:
     """
-    Use PostgreSQL to_tsvector full-text search on the law_sections table.
+    Use PostgreSQL to_tsvector full-text search on the legal_knowledge table.
     Filter WHERE act_name = ANY(acts).
     Return results in same format as Qdrant results.
     """
@@ -95,8 +95,8 @@ async def search_postgres_fulltext(query: str, acts: List[str], limit: int) -> L
     try:
         async with AsyncSessionLocal() as session:
             sql = text("""
-                SELECT id, act_name, section_number, text AS content, source AS doc_type
-                FROM law_sections
+                SELECT id, act_name, section_number, text, source
+                FROM legal_knowledge
                 WHERE act_name = ANY(:acts)
                 AND to_tsvector('english', text) @@ plainto_tsquery('english', :query)
                 LIMIT :limit
@@ -106,8 +106,8 @@ async def search_postgres_fulltext(query: str, acts: List[str], limit: int) -> L
                 payload = {
                     "act_name": getattr(row, "act_name", None),
                     "section_number": getattr(row, "section_number", None),
-                    "doc_type": getattr(row, "doc_type", "section"),
-                    "text": getattr(row, "content", "")
+                    "doc_type": getattr(row, "source", "section"),
+                    "text": getattr(row, "text", "")
                 }
                 results.append(QdrantMockResult(id=str(getattr(row, "id", "")), score=0.5, payload=payload))
     except Exception as e:

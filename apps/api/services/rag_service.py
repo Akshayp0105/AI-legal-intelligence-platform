@@ -1,15 +1,38 @@
-# RAG service v1.0.1 - Document indexing enhancements
 import logging
+from services.rag.chunker import get_text_splitter
+from services.rag.embedder import get_embeddings
+from services.rag.indexer import index_chunks
 
 logger = logging.getLogger(__name__)
 
 async def index_document(document_id: str, raw_text: str):
     """
-    Placeholder for the RAG module's chunking and embedding pipeline.
-    This would typically split the text, generate embeddings, and store them in Qdrant.
+    Chunk document text, generate embeddings, and store in Qdrant.
     """
     logger.info(f"Background task started: Indexing document {document_id}")
-    # TODO: Implement chunking
-    # TODO: Implement embedding generation
-    # TODO: Store in Qdrant vector database
-    logger.info(f"Background task completed: Indexing document {document_id}")
+
+    if not raw_text or not raw_text.strip():
+        logger.warning(f"Document {document_id} has no text content, skipping indexing.")
+        return
+
+    try:
+        splitter = get_text_splitter()
+        chunks = splitter.split_text(raw_text)
+        logger.info(f"Split document {document_id} into {len(chunks)} chunks.")
+
+        embeddings = get_embeddings(chunks)
+        logger.info(f"Generated {len(embeddings)} embeddings for document {document_id}.")
+
+        metadata = [
+            {
+                "source": f"document:{document_id}",
+                "document_id": document_id,
+                "chunk_index": i,
+            }
+            for i in range(len(chunks))
+        ]
+
+        index_chunks(chunks, embeddings, metadata)
+        logger.info(f"Background task completed: Indexed document {document_id} ({len(chunks)} chunks).")
+    except Exception as e:
+        logger.error(f"Failed to index document {document_id}: {e}", exc_info=True)

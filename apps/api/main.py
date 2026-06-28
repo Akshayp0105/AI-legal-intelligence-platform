@@ -48,6 +48,8 @@ app = FastAPI(
     version="1.2.0",
     lifespan=lifespan,
     openapi_tags=tags_metadata,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 register_error_handlers(app)

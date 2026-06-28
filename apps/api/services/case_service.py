@@ -1,6 +1,5 @@
 # Case service v1.0.1 - Improved title generation
 import uuid, re
-# Case service v1.0.1 - Improved title generation
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, update, desc
 from models.cases import Case, Message

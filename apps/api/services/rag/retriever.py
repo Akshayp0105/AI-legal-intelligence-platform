@@ -269,5 +269,53 @@ async def retrieve_for_domain(
     )
 
 def qdrant_search(query: str, top_k: int = 10, **kwargs) -> List[Dict[str, Any]]:
-    """Fallback qdrant_search function for older modules."""
-    return []
+    """
+    Search Qdrant for similar legal content. Used by prediction_service, gaps, and hybrid_search.
+    Returns list of dicts with 'id', 'score', and 'payload' keys.
+    """
+    try:
+        import asyncio
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                embedding = pool.submit(asyncio.run, embed_query(query)).result()
+        else:
+            embedding = asyncio.run(embed_query(query))
+    except RuntimeError:
+        embedding = asyncio.run(embed_query(query))
+
+    try:
+        from core.qdrant import COLLECTION_NAME
+        from qdrant_client.http.models import Filter, FieldCondition, MatchValue
+
+        must_conditions = []
+        if "act_name" in kwargs and kwargs["act_name"]:
+            must_conditions.append(
+                FieldCondition(key="act_name", match=MatchValue(value=kwargs["act_name"]))
+            )
+        if "court" in kwargs and kwargs["court"]:
+            must_conditions.append(
+                FieldCondition(key="court", match=MatchValue(value=kwargs["court"]))
+            )
+
+        query_filter = Filter(must=must_conditions) if must_conditions else None
+
+        results = qdrant_client.search(
+            collection_name=COLLECTION_NAME,
+            query_vector=embedding,
+            query_filter=query_filter,
+            limit=top_k,
+        )
+
+        return [
+            {
+                "id": str(hit.id),
+                "score": hit.score,
+                "payload": hit.payload or {},
+            }
+            for hit in results
+        ]
+    except Exception as e:
+        logger.error(f"qdrant_search failed: {e}")
+        return []

@@ -100,6 +100,7 @@ legal_ai/
 - Use type hints
 - Use async/await for database operations
 - Keep functions focused and small
+- Run `ruff check .` and `ruff format --check .` before committing
 
 ### TypeScript (Web)
 
@@ -107,6 +108,23 @@ legal_ai/
 - Follow ESLint configuration
 - Use functional components with hooks
 - Keep components under 300 lines
+- Run `npm run lint` and `npx tsc --noEmit` before committing
+
+## Testing
+
+### API Tests
+
+```bash
+cd apps/api
+pytest
+```
+
+### Frontend Lint
+
+```bash
+cd apps/web
+npm run lint
+```
 
 ## Commit Messages
 

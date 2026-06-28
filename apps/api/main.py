@@ -57,13 +57,19 @@ os.makedirs(static_dir, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Configure CORS
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins_str = os.getenv("CORS_ORIGINS", "")
 origins = [
+    frontend_url,
     "http://localhost:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3000",
-    "https://lexai.app",
-    os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
+if allowed_origins_str:
+    origins.extend([o.strip() for o in allowed_origins_str.split(",") if o.strip()])
+# Deduplicate while preserving order
+seen = set()
+origins = [o for o in origins if o not in seen and not seen.add(o)]
 
 app.add_middleware(APIVersionMiddleware)
 app.add_middleware(GZipMiddleware)

@@ -56,8 +56,8 @@ async def verify_index():
     """Verify that the Qdrant collection contains data."""
     try:
         collection_info = qdrant_client.get_collection(COLLECTION_NAME)
-        print(f"Total vectors in {COLLECTION_NAME}: {collection_info.points_count}")
+        logger.info(f"Total vectors in {COLLECTION_NAME}: {collection_info.points_count}")
         return collection_info.points_count
     except Exception as e:
-        print(f"Failed to verify index: {e}")
+        logger.error(f"Failed to verify index: {e}")
         return 0

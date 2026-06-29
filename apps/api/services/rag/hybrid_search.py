@@ -104,7 +104,7 @@ def rerank_with_gemini(query: str, results: List[Dict[str, Any]]) -> List[Dict[s
         prompt += f"Chunk {i}:\n{res['payload'].get('text', '')[:500]}...\n\n"
         
     try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash-001')
         response = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(

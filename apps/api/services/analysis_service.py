@@ -152,7 +152,7 @@ async def analyze(message: str, session_id: str, history: list,
     system_prompt, user_prompt = build_prompt(message, domain, history, language, user_role)
 
     model = genai.GenerativeModel(
-        model_name="gemini-flash-latest",
+        model_name="gemini-2.0-flash-001",
         system_instruction=system_prompt,
         generation_config=genai.GenerationConfig(
             temperature=0.1,
@@ -211,7 +211,7 @@ async def analyze_stream(message: str, session_id: str, history: list,
     system_prompt, user_prompt = build_prompt(message, domain, history, language, user_role)
 
     model = genai.GenerativeModel(
-        model_name="gemini-flash-latest",
+        model_name="gemini-2.0-flash-001",
         system_instruction=system_prompt,
         generation_config=genai.GenerationConfig(
             temperature=0.1,

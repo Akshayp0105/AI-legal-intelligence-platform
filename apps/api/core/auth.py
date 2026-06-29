@@ -10,6 +10,9 @@ from typing import Callable, List, Optional
 
 from core.database import get_db_session
 from models.user import User, UserRole
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 security = HTTPBearer()
 
@@ -25,7 +28,7 @@ def get_jwks():
             with urllib.request.urlopen(CLERK_JWKS_URL) as response:
                 _jwks = json.loads(response.read().decode())
         except Exception as e:
-            print(f"Error fetching JWKS: {e}")
+            logger.error(f"Error fetching JWKS: {e}")
     return _jwks
 
 async def get_current_user(

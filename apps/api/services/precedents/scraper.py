@@ -107,7 +107,7 @@ async def scrape_and_index_cases(query: str, max_cases: int = 5):
                 match = re.search(r'\b(19|20)\d{2}\b', date_str)
                 if match:
                     year = int(match.group(0))
-            except:
+            except Exception:
                 pass
                 
         full_text_html = case_data.get("doc", "")

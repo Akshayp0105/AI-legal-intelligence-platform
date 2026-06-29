@@ -13,6 +13,9 @@ from core.slow_request import SlowRequestMiddleware
 from core.cache import CacheControlMiddleware
 from core.compression import GZipMiddleware
 from core.errors import register_error_handlers
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/hour"])
@@ -24,11 +27,11 @@ REQUEST_TIMEOUT = 30  # seconds
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize resources
-    print("Starting up LexAI API...")
+    logger.info("Starting up LexAI API...")
     init_qdrant()
     yield
     # Shutdown: Clean up resources
-    print("Shutting down LexAI API...")
+    logger.info("Shutting down LexAI API...")
 
 tags_metadata = [
     {"name": "documents", "description": "Upload, manage, and retrieve legal documents."},

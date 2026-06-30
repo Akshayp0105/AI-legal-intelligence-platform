@@ -5,18 +5,25 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 
-# Note: Ensure GEMINI_API_KEY is set in environment variables
-api_key = os.environ.get("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
-else:
-    logger.warning("GEMINI_API_KEY is not set. Embedder will fail.")
+_configured = False
+
+def _ensure_configured():
+    global _configured
+    if _configured:
+        return
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if api_key:
+        genai.configure(api_key=api_key)
+    else:
+        logger.warning("GEMINI_API_KEY is not set. Embedder will fail.")
+    _configured = True
 
 def get_embeddings(texts: List[str]) -> List[List[float]]:
     """
     Get embeddings for a list of texts using text-embedding-004.
     Batches requests to max 100 per call.
     """
+    _ensure_configured()
     embeddings = []
     batch_size = 100
     
@@ -41,6 +48,7 @@ def get_query_embedding(text: str) -> List[float]:
     """
     Get embedding for a single query string.
     """
+    _ensure_configured()
     try:
         result = genai.embed_content(
             model="models/gemini-embedding-001",

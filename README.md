@@ -7,6 +7,8 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-7.2-DC382D)](https://redis.io/)
+[![CI](https://github.com/Akshayp0105/AI-legal-intelligence-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Akshayp0105/AI-legal-intelligence-platform/actions/workflows/ci.yml)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-black)](https://docs.astral.sh/ruff/)
 
 > AI-powered legal document drafting and analysis platform for Indian courts.
 

@@ -62,3 +62,6 @@ test_result.json
 *.pid
 *.seed
 *.pid.lock
+
+# Gemini
+.gemini/

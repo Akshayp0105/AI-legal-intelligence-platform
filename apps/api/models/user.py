@@ -1,6 +1,6 @@
 import enum
 import uuid
-from sqlalchemy import Column, String, DateTime, Enum, func
+from sqlalchemy import Column, String, Integer, DateTime, Enum, func
 from sqlalchemy.dialects.postgresql import UUID
 from core.database import Base
 
@@ -20,5 +20,5 @@ class User(Base):
     role = Column(Enum(UserRole, name="userrole_enum"), default=UserRole.public, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
-    draft_count = Column(String, default="0", nullable=False)
+    draft_count = Column(Integer, default=0, nullable=False)
     subscription_tier = Column(String, default="free", nullable=False)

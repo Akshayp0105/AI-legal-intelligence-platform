@@ -237,7 +237,7 @@ async def analyze_stream(message: str, session_id: str, history: list,
         try:
             result = json.loads(clean)
             result["domain"] = domain
-        except:
+        except Exception:
             result = {
                 "conversational_reply": clean[:500],
                 "domain": domain,

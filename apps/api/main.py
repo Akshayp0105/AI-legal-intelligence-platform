@@ -126,7 +126,7 @@ async def api_info():
     return {
         "name": "LexAI",
         "version": "1.2.0",
-        "updated": "2026-06-18",
+        "updated": "2026-06-30",
         "docs_url": "/docs",
         "openapi_url": "/openapi.json",
     }

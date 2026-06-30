@@ -100,6 +100,7 @@ legal_ai/
 - Use type hints
 - Use async/await for database operations
 - Keep functions focused and small
+- Use `core.logging.get_logger()` for logging (not `logging.getLogger()`)
 - Run `ruff check .` and `ruff format --check .` before committing
 
 ### TypeScript (Web)

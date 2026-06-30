@@ -40,7 +40,15 @@ docker compose build web
 
 ## Production Docker Compose
 
-For production, create a `docker-compose.prod.yml`:
+For production, use the main `docker-compose.yml` with production overrides:
+
+```bash
+# Set environment variables in .env for production
+# Then deploy with:
+docker compose up -d --build
+```
+
+For a production setup with nginx reverse proxy, create a `docker-compose.prod.yml`:
 
 ```yaml
 services:
@@ -67,13 +75,15 @@ services:
       - "443:443"
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./certs:/etc/nginx/certs
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - api
       - web
     restart: always
 ```
+
+**Note:** The `nginx.conf` file is not included in the repository. Create it based on your domain and SSL configuration before deploying.
 
 ## SSL/TLS Configuration
 

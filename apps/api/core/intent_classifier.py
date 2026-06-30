@@ -1,12 +1,13 @@
 import json
-import logging
 import hashlib
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import google.generativeai as genai
 import redis.asyncio as aioredis
 
-logger = logging.getLogger(__name__)
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 import os
 

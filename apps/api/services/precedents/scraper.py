@@ -1,6 +1,5 @@
 import os
 import httpx
-import logging
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
@@ -8,8 +7,9 @@ from core.database import AsyncSessionLocal
 from models.precedent import CaseJudgment
 from services.rag.embedder import get_embeddings
 from services.rag.indexer import index_chunks
+from core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 INDIAN_KANOON_API_URL = "https://api.indiankanoon.org/search"
 INDIAN_KANOON_DOC_URL = "https://api.indiankanoon.org/doc"

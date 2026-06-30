@@ -1,9 +1,9 @@
 import os
-import logging
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
+from core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)

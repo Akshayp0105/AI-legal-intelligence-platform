@@ -1,13 +1,13 @@
 import json
-import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import redis.asyncio as aioredis
 
 from core.intent_classifier import ClassifiedIntent
+from core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 import os
 

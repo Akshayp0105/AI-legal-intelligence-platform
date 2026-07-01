@@ -35,7 +35,7 @@ async def search_knowledge_base(
     db: AsyncSession = Depends(get_db_session)
 ):
     try:
-        filters_dict = request.filters.dict(exclude_none=True) if request.filters else {}
+        filters_dict = request.filters.model_dump(exclude_none=True) if request.filters else {}
         
         results = await hybrid_search(
             db=db,

@@ -1,4 +1,6 @@
 import os
+import re
+import uuid
 import httpx
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -103,7 +105,6 @@ async def scrape_and_index_cases(query: str, max_cases: int = 5):
             try:
                 # Naive extraction of 4-digit year, or parsing if standard format
                 # Assuming Indian Kanoon might return standard dates or strings containing a year
-                import re
                 match = re.search(r'\b(19|20)\d{2}\b', date_str)
                 if match:
                     year = int(match.group(0))
@@ -125,7 +126,6 @@ async def scrape_and_index_cases(query: str, max_cases: int = 5):
             logger.error(f"Embedding failed for case {case_name}: {e}")
             continue
             
-        import uuid
         db_embedding_id = str(uuid.uuid4())
         
         # Save to PostgreSQL

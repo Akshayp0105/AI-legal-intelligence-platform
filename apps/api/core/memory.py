@@ -19,6 +19,7 @@ except Exception as e:
     logger.warning(f"Failed to initialize Redis in memory: {e}")
 
 class ConversationSession(BaseModel):
+    """A single conversation session storing chat history and case context."""
     session_id: str
     user_id: str
     messages: List[Dict[str, str]] = Field(default_factory=list)
@@ -29,6 +30,7 @@ class ConversationSession(BaseModel):
     last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ConversationMemoryManager:
+    """Manages conversation sessions with Redis-backed persistence."""
     async def get_or_create_session(self, session_id: str, user_id: str) -> ConversationSession:
         if redis_client:
             try:
@@ -42,14 +44,14 @@ class ConversationMemoryManager:
         await self._save_session(session)
         return session
 
-    async def _save_session(self, session: ConversationSession):
+    async def _save_session(self, session: ConversationSession) -> None:
         if redis_client:
             try:
                 await redis_client.setex(f"session:{session.session_id}", 3600, session.model_dump_json())
             except Exception as e:
                 logger.warning(f"Redis set failed in _save_session: {e}")
 
-    async def add_message(self, session_id: str, role: str, content: str):
+    async def add_message(self, session_id: str, role: str, content: str) -> None:
         session = await self.get_or_create_session(session_id, "unknown")
         session.messages.append({
             "role": role, 
@@ -61,7 +63,7 @@ class ConversationMemoryManager:
         session.last_active = datetime.now(timezone.utc)
         await self._save_session(session)
 
-    async def update_case_context(self, session_id: str, new_entities: Dict[str, Any]):
+    async def update_case_context(self, session_id: str, new_entities: Dict[str, Any]) -> None:
         session = await self.get_or_create_session(session_id, "unknown")
         for key, new_val in new_entities.items():
             if not new_val:

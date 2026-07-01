@@ -1,5 +1,6 @@
 import hashlib
 import json
+import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +25,6 @@ async def predict_endpoint(
         # 2. Hash case description
         case_hash = hashlib.sha256(request.case_description.encode('utf-8')).hexdigest()
         
-        import uuid
         parsed_user_id = uuid.UUID(request.user_id) if request.user_id else None
         
         # 3. Store in DB

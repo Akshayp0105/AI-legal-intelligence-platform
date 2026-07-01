@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 MAX_RETRIES = 3
 API_TIMEOUT = 30
 
-def get_gemini_model():
+def get_gemini_model() -> genai.GenerativeModel:
     return genai.GenerativeModel("gemini-2.0-flash-001")
 
 class DraftingService:

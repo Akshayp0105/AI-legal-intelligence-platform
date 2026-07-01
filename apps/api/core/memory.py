@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import redis.asyncio as aioredis
@@ -25,8 +25,8 @@ class ConversationSession(BaseModel):
     current_case_context: Dict[str, Any] = Field(default_factory=dict)
     detected_domain: str = ""
     last_classified_intent: Optional[Dict[str, Any]] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_active: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ConversationMemoryManager:
     async def get_or_create_session(self, session_id: str, user_id: str) -> ConversationSession:
@@ -54,11 +54,11 @@ class ConversationMemoryManager:
         session.messages.append({
             "role": role, 
             "content": content, 
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         if len(session.messages) > 20:
             session.messages = session.messages[-20:]
-        session.last_active = datetime.utcnow()
+        session.last_active = datetime.now(timezone.utc)
         await self._save_session(session)
 
     async def update_case_context(self, session_id: str, new_entities: Dict[str, Any]):
@@ -84,7 +84,7 @@ class ConversationMemoryManager:
                     session.current_case_context[key] = new_val
             else:
                 session.current_case_context[key] = new_val
-        session.last_active = datetime.utcnow()
+        session.last_active = datetime.now(timezone.utc)
         await self._save_session(session)
 
     async def get_context_for_prompt(self, session_id: str) -> Dict[str, Any]:
@@ -113,7 +113,7 @@ class ConversationMemoryManager:
             session.detected_domain = new_intent.legal_domain
             
         session.last_classified_intent = new_intent.model_dump()
-        session.last_active = datetime.utcnow()
+        session.last_active = datetime.now(timezone.utc)
         await self._save_session(session)
         
         return new_intent

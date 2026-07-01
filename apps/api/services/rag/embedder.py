@@ -8,7 +8,7 @@ logger = get_logger(__name__)
 
 _configured = False
 
-def _ensure_configured():
+def _ensure_configured() -> None:
     global _configured
     if _configured:
         return

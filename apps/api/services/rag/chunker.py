@@ -1,8 +1,8 @@
 import tiktoken
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import logging
+from core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def get_text_splitter():
     # 800 tokens, 100 overlap

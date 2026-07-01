@@ -5,6 +5,7 @@ from core.logging import get_logger
 logger = get_logger(__name__)
 
 def get_text_splitter() -> RecursiveCharacterTextSplitter:
+    """Create a text splitter with 800 token chunks and 100 token overlap."""
     # 800 tokens, 100 overlap
     encoding = tiktoken.get_encoding("cl100k_base")
     def tiktoken_len(text: str) -> int:
@@ -36,6 +37,7 @@ def chunk_statute(section_text: str, section_number: str, act_name: str) -> list
     return [prefix + chunk for chunk in chunks]
 
 def chunk_judgment(judgment_text: str) -> list[str]:
+    """Chunks a judgment text, typically splitting by paragraphs."""
     """
     Chunks a judgment text, typically splitting by paragraphs.
     """

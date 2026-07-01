@@ -26,7 +26,7 @@ export default function DocumentUpload() {
   }, []);
 
   const processFile = async (file: File) => {
-    const docId = Math.random().toString(36).substr(2, 9);
+    const docId = Math.random().toString(36).slice(2, 11);
     const newDoc: UploadedDoc = {
       id: docId,
       name: file.name,

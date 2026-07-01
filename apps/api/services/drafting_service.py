@@ -1,12 +1,13 @@
 import os
 import json
-import logging
 from typing import Dict, Any
 import google.generativeai as genai
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from docx import Document
 
-logger = logging.getLogger(__name__)
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 MAX_RETRIES = 3
 API_TIMEOUT = 30

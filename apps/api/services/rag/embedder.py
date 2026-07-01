@@ -9,6 +9,7 @@ logger = get_logger(__name__)
 _configured = False
 
 def _ensure_configured() -> None:
+    """Ensure the Gemini API is configured with the API key."""
     global _configured
     if _configured:
         return

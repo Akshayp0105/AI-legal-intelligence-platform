@@ -4,10 +4,10 @@ from core.logging import get_logger
 
 logger = get_logger(__name__)
 
-def get_text_splitter():
+def get_text_splitter() -> RecursiveCharacterTextSplitter:
     # 800 tokens, 100 overlap
     encoding = tiktoken.get_encoding("cl100k_base")
-    def tiktoken_len(text):
+    def tiktoken_len(text: str) -> int:
         return len(encoding.encode(text))
 
     return RecursiveCharacterTextSplitter(

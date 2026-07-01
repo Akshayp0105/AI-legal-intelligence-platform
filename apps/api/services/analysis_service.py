@@ -1,9 +1,12 @@
 # Analysis service v1.0.1 - Enhanced domain detection
 import asyncio, json, logging, os, hashlib
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List, Dict, Any, Optional, Tuple
 import google.generativeai as genai
+from sqlalchemy.ext.asyncio import AsyncSession
 
-logger = logging.getLogger("lexai.analysis")
+from core.logging import get_logger
+
+logger = get_logger("lexai.analysis")
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 DOMAIN_KEYWORDS = {
@@ -52,7 +55,7 @@ DOMAIN_ROLES = {
 }
 
 
-def detect_domain(message: str, history: list) -> str:
+def detect_domain(message: str, history: List[Dict[str, str]]) -> str:
     """Fast local keyword detection — no API call needed."""
     text = (message + " ".join(m.get("content","") for m in history[-2:])).lower()
     scores = {domain: sum(1 for kw in keywords if kw in text)
@@ -63,7 +66,7 @@ def detect_domain(message: str, history: list) -> str:
     return best if score > 0 else "general"
 
 
-def build_prompt(message: str, domain: str, history: list, language: str, user_role: str) -> tuple[str, str]:
+def build_prompt(message: str, domain: str, history: List[Dict[str, str]], language: str, user_role: str) -> Tuple[str, str]:
     acts = "\n".join(f"  • {a}" for a in DOMAIN_ACTS.get(domain, DOMAIN_ACTS["general"]))
     role = DOMAIN_ROLES.get(domain, DOMAIN_ROLES["general"])
 
@@ -142,7 +145,7 @@ Return ONLY the JSON object."""
     return system, user
 
 
-async def analyze(message: str, session_id: str, history: list,
+async def analyze(message: str, session_id: str, history: List[Dict[str, str]],
                   language: str = "en", user_role: str = "public") -> dict:
     """Main analysis function — guaranteed to return a valid response."""
 
@@ -197,8 +200,8 @@ async def analyze(message: str, session_id: str, history: list,
         raise
 
 
-async def analyze_stream(message: str, session_id: str, history: list,
-                         language: str = "en", user_role: str = "public", db: AsyncSession = None) -> AsyncGenerator[str, None]:
+async def analyze_stream(message: str, session_id: str, history: List[Dict[str, str]],
+                         language: str = "en", user_role: str = "public", db: Optional[AsyncSession] = None) -> AsyncGenerator[str, None]:
     """Streaming analysis — yields SSE events."""
 
     domain = detect_domain(message, history)

@@ -1,6 +1,6 @@
 import os
-import urllib.request
 import json
+import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
@@ -21,12 +21,14 @@ CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL") # e.g. https://your-clerk-domain.cl
 # Cache JWKS
 _jwks = None
 
-def get_jwks():
+async def get_jwks():
     global _jwks
     if _jwks is None and CLERK_JWKS_URL:
         try:
-            with urllib.request.urlopen(CLERK_JWKS_URL) as response:
-                _jwks = json.loads(response.read().decode())
+            async with httpx.AsyncClient() as client:
+                response = await client.get(CLERK_JWKS_URL)
+                response.raise_for_status()
+                _jwks = response.json()
         except Exception as e:
             logger.error(f"Error fetching JWKS: {e}")
     return _jwks
@@ -37,7 +39,7 @@ async def get_current_user(
 ) -> User:
     """Dependency to extract user_id from Bearer token and verify it via Clerk JWKS"""
     token = credentials.credentials
-    jwks = get_jwks()
+    jwks = await get_jwks()
 
     if not jwks:
         raise HTTPException(

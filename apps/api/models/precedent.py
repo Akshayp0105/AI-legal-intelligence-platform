@@ -1,7 +1,8 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, Text, DateTime, Integer
 from sqlalchemy.dialects.postgresql import UUID, ARRAY, ENUM
+from sqlalchemy import func
 from core.database import Base
 
 class CaseJudgment(Base):
@@ -23,5 +24,5 @@ class CaseJudgment(Base):
     # Links to Qdrant embedding ID
     embedding_id = Column(String, index=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

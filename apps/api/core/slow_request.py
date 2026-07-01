@@ -1,9 +1,10 @@
 import time
-import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-logger = logging.getLogger("slow_requests")
+from core.logging import get_logger
+
+logger = get_logger("slow_requests")
 SLOW_REQUEST_THRESHOLD_MS = 1000  # 1 second
 VERY_SLOW_REQUEST_THRESHOLD_MS = 5000  # 5 seconds
 

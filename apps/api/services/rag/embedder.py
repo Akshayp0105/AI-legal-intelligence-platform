@@ -1,9 +1,10 @@
 import os
-import logging
 import google.generativeai as genai
 from typing import List
 
-logger = logging.getLogger(__name__)
+from core.logging import get_logger
+
+logger = get_logger(__name__)
 
 _configured = False
 

@@ -274,7 +274,6 @@ def qdrant_search(query: str, top_k: int = 10, **kwargs) -> List[Dict[str, Any]]
     Returns list of dicts with 'id', 'score', and 'payload' keys.
     """
     try:
-        import asyncio
         loop = asyncio.get_event_loop()
         if loop.is_running():
             import concurrent.futures

@@ -1,3 +1,5 @@
+"""GZip response compression middleware for the FastAPI application."""
+
 import gzip
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request

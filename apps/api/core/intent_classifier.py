@@ -1,3 +1,5 @@
+"""Intent classification for legal queries using Gemini AI."""
+
 import json
 import hashlib
 from typing import List, Dict, Any, Optional

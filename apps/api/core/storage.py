@@ -1,3 +1,5 @@
+"""Supabase storage client for file uploads and retrieval."""
+
 import os
 from supabase import create_client, Client
 from core.logging import get_logger

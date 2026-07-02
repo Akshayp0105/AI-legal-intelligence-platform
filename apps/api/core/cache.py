@@ -1,3 +1,5 @@
+"""Cache-Control middleware for setting HTTP caching headers based on endpoint type."""
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 

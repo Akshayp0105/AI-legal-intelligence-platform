@@ -21,7 +21,11 @@ except Exception as e:
     logger.warning(f"Failed to initialize Redis in memory: {e}")
 
 class ConversationSession(BaseModel):
-    """A single conversation session storing chat history and case context."""
+    """A single conversation session storing chat history and case context.
+
+    Tracks messages, detected legal domain, and case entities for
+    context-aware AI responses across a conversation.
+    """
     session_id: str
     user_id: str
     messages: List[Dict[str, str]] = Field(default_factory=list)

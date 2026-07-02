@@ -18,7 +18,7 @@ qdrant_client = QdrantClient(
     api_key=QDRANT_API_KEY,
 )
 
-def init_qdrant():
+def init_qdrant() -> None:
     """Initialize Qdrant collection if it does not exist."""
     try:
         collections = qdrant_client.get_collections().collections

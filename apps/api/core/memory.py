@@ -1,3 +1,5 @@
+"""Redis-backed conversation memory manager for chat sessions."""
+
 import json
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional

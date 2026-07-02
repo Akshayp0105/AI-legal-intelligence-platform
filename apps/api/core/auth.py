@@ -102,7 +102,11 @@ async def get_current_user(
     return user
 
 def require_roles(allowed_roles: List[UserRole]):
-    """Decorator / Dependency for role-based access control"""
+    """Dependency factory for role-based access control.
+
+    Returns a dependency that checks if the current user's role
+    is in the list of allowed roles, raising 403 if not.
+    """
     async def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in allowed_roles:
             raise HTTPException(

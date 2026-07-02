@@ -32,7 +32,11 @@ AUTHENTICATED_MULTIPLIER = 2  # Authenticated users get 2x the rate limit
 
 
 def get_rate_limit(endpoint_key: str, authenticated: bool = False) -> str:
-    """Get the rate limit for an endpoint key."""
+    """Get the rate limit for an endpoint key.
+
+    Returns the base rate limit, or the doubled limit for authenticated users
+    when AUTHENTICATED_MULTIPLIER is applied.
+    """
     base_limit = RATE_LIMITS.get(endpoint_key, "60/minute")
     if authenticated:
         # Parse and multiply

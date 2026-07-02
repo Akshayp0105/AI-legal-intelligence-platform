@@ -18,9 +18,7 @@ if SUPABASE_URL and SUPABASE_KEY:
         logger.warning(f"Failed to initialize Supabase client: {e}")
 
 async def upload_file_to_supabase(file_path: str, bucket: str, destination_path: str, content_type: str) -> str:
-    """
-    Uploads a file to Supabase storage and returns the public URL.
-    """
+    """Upload a file to Supabase storage and return the public URL."""
     if not supabase:
         raise Exception("Supabase client is not initialized.")
         

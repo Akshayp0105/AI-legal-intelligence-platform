@@ -44,6 +44,8 @@ class Entities(BaseModel):
     companies: List[str] = Field(default_factory=list)
 
 class ClassifiedIntent(BaseModel):
+    """Classified intent for a legal query including domain, entities, and urgency."""
+
     legal_domain: str = "general"
     query_type: str = "question"
     is_legal_query: bool = True

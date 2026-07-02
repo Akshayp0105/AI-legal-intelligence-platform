@@ -88,6 +88,7 @@ def build_qdrant_filter(domain_config: Dict[str, Any], year_from: Optional[int] 
     return qdrant_models.Filter(must=must_conditions)
 
 def get_relevant_laws_list(legal_domain: str) -> str:
+    """Return a comma-separated string of primary acts for the given legal domain."""
     config = get_domain_config(legal_domain)
     acts = config.get("primary_acts", [])
     return ", ".join(acts)

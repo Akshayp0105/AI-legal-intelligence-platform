@@ -1,3 +1,5 @@
+"""Domain-specific routing and configuration for legal practice areas."""
+
 from typing import Dict, Any, Optional
 from qdrant_client.http import models as qdrant_models
 

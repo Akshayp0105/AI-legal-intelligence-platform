@@ -36,7 +36,11 @@ class ConversationSession(BaseModel):
     last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ConversationMemoryManager:
-    """Manages conversation sessions with Redis-backed persistence."""
+    """Manages conversation sessions with Redis-backed persistence.
+
+    Handles session creation, message history, case context updates,
+    and domain inheritance for follow-up queries.
+    """
     async def get_or_create_session(self, session_id: str, user_id: str) -> ConversationSession:
         if redis_client:
             try:

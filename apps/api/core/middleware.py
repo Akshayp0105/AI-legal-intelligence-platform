@@ -7,7 +7,7 @@ from core.logging import get_logger
 
 logger = get_logger("middleware")
 
-API_VERSION = "1.2.0"
+API_VERSION = "1.2.1"
 API_VERSION_HEADER = "X-API-Version"
 
 

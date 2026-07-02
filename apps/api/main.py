@@ -48,7 +48,7 @@ tags_metadata = [
 app = FastAPI(
     title="LexAI API",
     description="Backend API for LexAI Legal Intelligence Platform",
-    version="1.2.0",
+    version="1.2.1",
     lifespan=lifespan,
     openapi_tags=tags_metadata,
     docs_url="/docs",
@@ -117,7 +117,7 @@ async def health_check():
     return {
         "status": "ok" if overall else "degraded",
         "message": "LexAI API is running",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "dependencies": deps,
     }
 
@@ -125,7 +125,7 @@ async def health_check():
 async def api_info():
     return {
         "name": "LexAI",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "updated": "2026-06-30",
         "docs_url": "/docs",
         "openapi_url": "/openapi.json",
@@ -135,7 +135,7 @@ async def api_info():
 async def api_discovery():
     return {
         "service": "LexAI API",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "endpoints": {
             "health": {"method": "GET", "path": "/health", "description": "Health check with dependencies"},
             "pool": {"method": "GET", "path": "/api/pool", "description": "Database pool status"},

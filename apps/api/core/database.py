@@ -34,7 +34,11 @@ POOL_WARNING_THRESHOLD = 0.8  # Warn when 80% of connections are in use
 
 
 def get_pool_status() -> dict:
-    """Get connection pool statistics."""
+    """Get connection pool statistics.
+
+    Returns a dict with pool_size, max_overflow, checked_in, checked_out,
+    overflow, and utilization_pct keys.
+    """
     pool = engine.pool
     checked_out = pool.checkedout()
     pool_size = pool.size()

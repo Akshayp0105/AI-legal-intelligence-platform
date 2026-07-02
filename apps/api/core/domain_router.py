@@ -63,6 +63,10 @@ DOMAIN_CONFIG = {
 }
 
 def get_domain_config(legal_domain: str) -> Dict[str, Any]:
+    """Return the domain configuration dict for the given legal domain.
+
+    Falls back to the 'general' domain config if the domain is not recognized.
+    """
     return DOMAIN_CONFIG.get(legal_domain, DOMAIN_CONFIG["general"])
 
 def build_qdrant_filter(domain_config: Dict[str, Any], year_from: Optional[int] = None) -> qdrant_models.Filter:

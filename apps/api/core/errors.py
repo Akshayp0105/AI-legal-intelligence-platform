@@ -14,7 +14,8 @@ def register_error_handlers(app: FastAPI):
     """Register custom error handlers on the FastAPI app.
 
     Handles AppException, 404 Not Found, and 500 Internal Server Error
-    responses with structured JSON error bodies.
+    responses with structured JSON error bodies. Each handler returns
+    a consistent {error, status_code} payload.
     """
 
     @app.exception_handler(AppException)

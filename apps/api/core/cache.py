@@ -27,7 +27,11 @@ STATIC_CACHE_PATHS = {"/static"}
 
 
 class CacheControlMiddleware(BaseHTTPMiddleware):
-    """Middleware to set appropriate Cache-Control headers based on endpoint type."""
+    """Middleware to set appropriate Cache-Control headers based on endpoint type.
+
+    Applies no-cache for AI endpoints, short-lived cache for read-only data,
+    and immutable cache for static assets.
+    """
 
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)

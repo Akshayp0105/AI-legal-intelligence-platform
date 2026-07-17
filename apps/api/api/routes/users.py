@@ -6,9 +6,7 @@ router = APIRouter()
 
 @router.get("/me", response_model=dict)
 async def get_my_profile(current_user: User = Depends(get_current_user)):
-    """
-    Return the current user's profile based on the JWT token.
-    """
+    """Return the authenticated user's profile from the JWT token."""
     return {
         "id": str(current_user.id),
         "clerk_id": current_user.clerk_id,

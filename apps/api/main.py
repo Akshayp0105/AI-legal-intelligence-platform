@@ -167,6 +167,7 @@ async def api_discovery():
 
 @app.get("/api/status")
 async def system_status():
+    """Return current system environment and active service status."""
     environment = os.getenv("ENVIRONMENT", "development")
     return {"uptime": "active", "services": ["api", "database", "storage", "ai"], "environment": environment}
 

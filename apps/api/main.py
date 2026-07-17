@@ -133,6 +133,7 @@ async def api_info():
 
 @app.get("/api/discovery")
 async def api_discovery():
+    """Return metadata for all available API endpoints with descriptions."""
     return {
         "service": "LexAI API",
         "version": "1.2.1",

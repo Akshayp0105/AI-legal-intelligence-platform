@@ -1,3 +1,5 @@
+"""Prediction scoring prompts for Gemini-based case strength analysis."""
+
 PREDICTION_SCORING_PROMPT = """
 You are an expert legal strategist and AI analyst.
 Analyze the following case description and provide a structured JSON response containing a case strength prediction.

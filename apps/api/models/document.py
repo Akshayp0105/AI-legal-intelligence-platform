@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from core.database import Base
 
 class DocType(str, enum.Enum):
+    """Document type classification: fir, notice, petition, contract, judgment, or other."""
     fir = "fir"
     notice = "notice"
     petition = "petition"

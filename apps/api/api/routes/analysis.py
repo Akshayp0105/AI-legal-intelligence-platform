@@ -17,6 +17,7 @@ logger = get_logger(__name__)
 limiter = Limiter(key_func=get_remote_address)
 
 class AnalyzeRequest(BaseModel):
+    """Request schema for the legal analysis endpoint."""
     message: str = Field(..., description="User message to analyze", min_length=1, max_length=2000)
     session_id: str = Field(default="default", description="Session ID")
     chat_history: List[Dict[str, Any]] = Field(default=[], description="Previous chat history")

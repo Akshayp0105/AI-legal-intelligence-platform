@@ -9,7 +9,11 @@ MIN_SIZE_FOR_COMPRESSION = 500  # bytes
 
 
 class GZipMiddleware(BaseHTTPMiddleware):
-    """Middleware to compress responses using gzip when client supports it."""
+    """Middleware to compress responses using gzip when client supports it.
+
+    Skips compression for binary media types and responses smaller than
+    MIN_SIZE_FOR_COMPRESSION bytes.
+    """
 
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)

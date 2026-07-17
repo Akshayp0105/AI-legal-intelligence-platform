@@ -19,7 +19,11 @@ qdrant_client = QdrantClient(
 )
 
 def init_qdrant() -> None:
-    """Initialize Qdrant collection if it does not exist."""
+    """Initialize Qdrant collection if it does not exist.
+
+    Creates the 'legal_knowledge' collection with 3072-dim cosine vectors
+    if it has not been created yet. Safe to call on every startup.
+    """
     try:
         collections = qdrant_client.get_collections().collections
         collection_names = [col.name for col in collections]

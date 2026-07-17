@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class FeedbackRequest(BaseModel):
+    """Feedback submission with session id, message index, rating (good/bad), and optional comment."""
     session_id: str
     message_index: int
     rating: str = Field(pattern="^(good|bad)$")

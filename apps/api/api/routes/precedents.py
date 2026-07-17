@@ -67,11 +67,8 @@ async def search_precedents(
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_precedents(request: AnalyzeRequest):
-    """
-    Analyze a case description to find similar judgments and compare them using Gemini.
-    """
-    # Create cache key
-    # Include search parameters in cache key
+    """Analyze a case description against past judgments using vector search and Gemini comparison."""
+    # Build cache key from search parameters
     params_str = f"{request.top_k}:{request.court}:{request.year_from}:{request.year_to}"
     cache_string = f"{request.case_description}:{params_str}"
     cache_key = f"analyze_precedents:{hashlib.sha256(cache_string.encode('utf-8')).hexdigest()}"

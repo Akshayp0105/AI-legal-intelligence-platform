@@ -13,6 +13,7 @@ async def submit_feedback(
     request: FeedbackRequest,
     db: AsyncSession = Depends(get_db_session)
 ):
+    """Submit user feedback on an AI response and flag bad responses for review."""
     feedback_entry = ResponseFeedback(
         session_id=request.session_id,
         message_index=request.message_index,

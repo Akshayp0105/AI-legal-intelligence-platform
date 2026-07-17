@@ -18,6 +18,7 @@ async def predict_endpoint(
     request: PredictionRequest,
     db: AsyncSession = Depends(get_db_session)
 ):
+    """Predict case strength using Gemini and store the result in the database."""
     try:
         # 1. Run prediction pipeline
         prediction_dict = await predict_case_strength(request)

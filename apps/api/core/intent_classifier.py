@@ -37,6 +37,7 @@ DOMAIN_MAP = {
 }
 
 class Entities(BaseModel):
+    """Extracted legal entities from a user query including parties, locations, and dates."""
     party_names: List[str] = Field(default_factory=list)
     locations: List[str] = Field(default_factory=list)
     dates: List[str] = Field(default_factory=list)

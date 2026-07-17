@@ -40,9 +40,7 @@ async def analyze_gaps_endpoint(
     request: GapAnalyzeRequest,
     db: AsyncSession = Depends(get_db_session)
 ):
-    """
-    Analyze case description and documents to find legal gaps and weaknesses, augmented by RAG.
-    """
+    """Identify legal gaps, procedural weaknesses, and jurisdictional issues via Gemini + RAG augmentation."""
     document_texts = []
     
     if request.documents:

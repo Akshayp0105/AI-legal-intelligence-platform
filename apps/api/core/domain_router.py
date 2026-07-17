@@ -70,6 +70,7 @@ def get_domain_config(legal_domain: str) -> Dict[str, Any]:
     return DOMAIN_CONFIG.get(legal_domain, DOMAIN_CONFIG["general"])
 
 def build_qdrant_filter(domain_config: Dict[str, Any], year_from: Optional[int] = None) -> qdrant_models.Filter:
+    """Build a Qdrant filter from domain config, optionally filtering by year."""
     must_conditions = []
     
     act_names = domain_config.get("qdrant_filter", {}).get("act_name", [])

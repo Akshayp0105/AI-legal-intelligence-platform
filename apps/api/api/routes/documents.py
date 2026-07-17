@@ -25,6 +25,7 @@ async def upload_document(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user)
 ):
+    """Upload a legal document, extract text via OCR/PDF parsing, and index for RAG."""
     content = await file.read()
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File size exceeds the 20MB limit.")

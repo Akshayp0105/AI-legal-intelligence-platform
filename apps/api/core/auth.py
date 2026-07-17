@@ -22,6 +22,7 @@ CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL") # e.g. https://your-clerk-domain.cl
 _jwks = None
 
 async def get_jwks():
+    """Fetch and cache the Clerk JWKS (JSON Web Key Set) for token verification."""
     global _jwks
     if _jwks is None and CLERK_JWKS_URL:
         try:

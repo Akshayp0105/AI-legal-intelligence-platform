@@ -12,7 +12,11 @@ VERY_SLOW_REQUEST_THRESHOLD_MS = 5000  # 5 seconds
 
 
 class SlowRequestMiddleware(BaseHTTPMiddleware):
-    """Log requests that exceed the slow request threshold."""
+    """Log requests that exceed the slow request threshold.
+
+    Logs warnings for requests exceeding SLOW_REQUEST_THRESHOLD_MS (1s)
+    and errors for requests exceeding VERY_SLOW_REQUEST_THRESHOLD_MS (5s).
+    """
 
     async def dispatch(self, request: Request, call_next):
         start = time.time()

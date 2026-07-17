@@ -12,7 +12,11 @@ class ValidatedResponse:
     final_response: AnalysisResponse
 
 def validate_response(response: AnalysisResponse, intent: ClassifiedIntent, domain_config: Dict[str, Any], retrieved_count: int) -> ValidatedResponse:
-    """Validate and sanitize an analysis response against domain rules and sanity checks."""
+    """Validate and sanitize an analysis response against domain rules and sanity checks.
+
+    Checks performed: domain mismatch, section number sanity, empty response,
+    data gap detection. Returns warnings and modification flags.
+    """
     warnings = []
     was_modified = False
     data_gap = False

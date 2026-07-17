@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from core.database import Base
 
 class UserRole(str, enum.Enum):
+    """User roles defining access levels: advocate, student, public, or firm."""
     advocate = "advocate"
     student = "student"
     public = "public"

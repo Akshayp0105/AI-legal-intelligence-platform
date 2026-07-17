@@ -37,10 +37,8 @@ def chunk_statute(section_text: str, section_number: str, act_name: str) -> list
     return [prefix + chunk for chunk in chunks]
 
 def chunk_judgment(judgment_text: str) -> list[str]:
-    """Chunks a judgment text, typically splitting by paragraphs."""
-    """
-    Chunks a judgment text, typically splitting by paragraphs.
-    """
+    """Split a judgment text into chunks using RecursiveCharacterTextSplitter."""
+    # RecursiveCharacterTextSplitter defaults to "\n\n" as first separator
     splitter = get_text_splitter()
     # RecursiveCharacterTextSplitter defaults to "\n\n" as first separator
     return splitter.split_text(judgment_text)

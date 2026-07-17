@@ -49,6 +49,11 @@ section_validator = {
 }
 
 class PromptBuilder:
+    """Builds structured system and user prompts for Gemini legal analysis.
+
+    Generates domain-specific prompts incorporating user role, language,
+    retrieved laws, and conversation history.
+    """
     @staticmethod
     def build_system_prompt(domain_config: dict, user_role: str, language: str) -> str:
         primary_acts_str = ', '.join(domain_config.get('primary_acts', []))

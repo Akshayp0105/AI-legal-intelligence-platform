@@ -63,6 +63,7 @@ async def improve_draft_endpoint(
     request: DraftingImproveRequest,
     current_user: User = Depends(get_current_user)
 ):
+    """Improve an existing draft based on user feedback via Gemini."""
     improved_text = await drafting_service.improve_draft(request.draft_text, request.feedback)
     return {"improved_text": improved_text}
 

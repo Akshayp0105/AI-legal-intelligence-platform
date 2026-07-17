@@ -62,6 +62,7 @@ class ConversationMemoryManager:
                 logger.warning(f"Redis set failed in _save_session: {e}")
 
     async def add_message(self, session_id: str, role: str, content: str) -> None:
+        """Append a message to the session history, keeping only the last 20 messages."""
         session = await self.get_or_create_session(session_id, "unknown")
         session.messages.append({
             "role": role, 

@@ -87,7 +87,7 @@ async def list_cases(
     offset: int = Query(0),
     db: AsyncSession = Depends(get_db_session),
 ):
-    """Get all cases for a session (like Claude's conversation list)."""
+    """List all cases for a session with pagination and aggregate stats."""
     if not session_id or len(session_id) < 3:
         raise HTTPException(400, "Invalid session_id")
 

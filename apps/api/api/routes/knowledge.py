@@ -34,6 +34,7 @@ async def search_knowledge_base(
     request: SearchRequest,
     db: AsyncSession = Depends(get_db_session)
 ):
+    """Search the legal knowledge base using hybrid vector + full-text search."""
     try:
         filters_dict = request.filters.model_dump(exclude_none=True) if request.filters else {}
         

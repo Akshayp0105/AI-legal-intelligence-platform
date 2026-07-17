@@ -21,7 +21,10 @@ class APIVersionMiddleware(BaseHTTPMiddleware):
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
-    """Middleware to assign a unique request ID and log request timing."""
+    """Middleware to assign a unique request ID and log request timing.
+
+    Adds X-Request-ID and X-Process-Time-Ms headers to every response.
+    """
 
     async def dispatch(self, request: Request, call_next):
         request_id = str(uuid.uuid4())[:8]

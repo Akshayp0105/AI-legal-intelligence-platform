@@ -1,3 +1,11 @@
+"""Core legal retrieval engine with multi-tier search.
+
+Embeds queries via Gemini, performs cascading search across Qdrant
+vector DB, constitutional fallback, and PostgreSQL full-text search,
+validates results against domain-allowed acts, and re-ranks via Gemini.
+Provides Redis-cached embeddings for performance.
+"""
+
 import json
 import logging
 import asyncio
@@ -32,6 +40,11 @@ except Exception as e:
     logger.warning(f"Failed to initialize Redis in retriever: {e}")
 
 class RetrievalResult(BaseModel):
+    """Structured result from the multi-tier retrieval pipeline.
+
+    Separates retrieved content into laws and cases with metadata
+    about which retrieval tiers were used.
+    """
     laws: List[Any]
     cases: List[Any]
     total_retrieved: int
@@ -175,6 +188,12 @@ async def retrieve_for_domain(
     domain_config: dict,
     top_k: int = 10
 ) -> RetrievalResult:
+    """Execute multi-tier retrieval for a specific legal domain.
+
+    Performs cascading search: strict domain filter, constitutional
+    fallback, PostgreSQL full-text fallback, deduplication, domain
+    validation, Gemini re-ranking, and separation into laws vs cases.
+    """
     
     # Step 1: Embed the query using Gemini text-embedding-004
     embedding = await embed_query(query)

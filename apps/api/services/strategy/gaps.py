@@ -1,3 +1,10 @@
+"""Legal gap analysis service.
+
+Identifies weaknesses and gaps in a case including missing evidence,
+procedural issues, jurisdictional concerns, and limitation period
+problems, then augments findings with relevant precedents via RAG.
+"""
+
 import json
 import logging
 import google.generativeai as genai

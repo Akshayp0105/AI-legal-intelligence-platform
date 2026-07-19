@@ -1,3 +1,4 @@
+/** Props for the base Skeleton loading component. */
 interface SkeletonProps {
   className?: string;
   variant?: "text" | "circular" | "rectangular";
@@ -6,6 +7,7 @@ interface SkeletonProps {
   lines?: number;
 }
 
+/** Reusable skeleton loading placeholder with text, circular, and rectangular variants. */
 export function Skeleton({
   className = "",
   variant = "text",
@@ -46,6 +48,7 @@ export function Skeleton({
   );
 }
 
+/** Skeleton layout for chat message placeholders. */
 export function ChatSkeleton() {
   return (
     <div className="space-y-4 p-4">
@@ -65,6 +68,7 @@ export function ChatSkeleton() {
   );
 }
 
+/** Skeleton layout for a single card placeholder. */
 export function CardSkeleton() {
   return (
     <div className="border rounded-lg p-4 space-y-3">
@@ -78,6 +82,7 @@ export function CardSkeleton() {
   );
 }
 
+/** Skeleton grid layout for the dashboard with multiple card placeholders. */
 export function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">

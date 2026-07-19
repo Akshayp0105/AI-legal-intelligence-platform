@@ -1,3 +1,10 @@
+"""Legal document drafting service.
+
+Handles generation, improvement, and translation of legal documents
+such as legal notices, FIRs, bail applications, and consumer complaints
+using Google Gemini for content generation and Jinja2 for templating.
+"""
+
 import os
 import json
 from typing import Dict, Any
@@ -12,10 +19,18 @@ logger = get_logger(__name__)
 MAX_RETRIES = 3
 API_TIMEOUT = 30
 
+
 def get_gemini_model() -> genai.GenerativeModel:
+    """Return a configured Gemini generative model instance."""
     return genai.GenerativeModel("gemini-2.0-flash-001")
 
+
 class DraftingService:
+    """Service for generating and managing legal document drafts.
+
+    Uses Gemini AI to extract fields and generate legal content sections,
+    then renders them through Jinja2 templates for the final document.
+    """
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates', 'drafting')
         self.jinja_env = Environment(

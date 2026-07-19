@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { FileSignature, Download, Loader2, Sparkles, Languages } from "lucide-react";
 
+/** Document drafting panel with type selector, language/tone controls, and live preview. */
 export default function DraftingPanel() {
   const [docType, setDocType] = useState("legal_notice");
   const [isGenerating, setIsGenerating] = useState(false);

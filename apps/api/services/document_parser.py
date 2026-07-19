@@ -1,3 +1,10 @@
+"""Document text extraction and language detection.
+
+Extracts text from PDFs (with OCR fallback for scanned pages) and
+images using PyMuPDF and Tesseract, with language detection via
+langdetect.
+"""
+
 # Document parser v1.0.1 - Optimization improvements
 import fitz
 import pytesseract

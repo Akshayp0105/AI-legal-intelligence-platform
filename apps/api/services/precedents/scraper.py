@@ -1,3 +1,10 @@
+"""Indian Kanoon case scraper and indexer.
+
+Fetches case law from the Indian Kanoon API, parses HTML to text,
+stores in PostgreSQL, generates embeddings, and indexes into Qdrant
+for semantic search.
+"""
+
 import os
 import re
 import uuid
@@ -71,6 +78,10 @@ async def fetch_case_document(doc_id: str) -> Optional[Dict[str, Any]]:
             return None
 
 def extract_text_from_html(html_content: str) -> str:
+    """Extract plain text from HTML content using BeautifulSoup.
+
+    Strips all HTML tags and returns cleaned text with newline separators.
+    """
     from bs4 import BeautifulSoup
     if not html_content:
         return ""

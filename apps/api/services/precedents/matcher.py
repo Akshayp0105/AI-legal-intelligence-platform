@@ -1,3 +1,10 @@
+"""Precedent matching and comparison service.
+
+Finds similar past court judgments via Qdrant vector search,
+then uses Gemini to generate comparison notes, outcome
+classifications, and key reasoning for each match.
+"""
+
 import json
 import logging
 import google.generativeai as genai

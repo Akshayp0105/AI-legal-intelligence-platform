@@ -1,3 +1,5 @@
+"""SQLAlchemy model for scraped court judgment precedents."""
+
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, Text, DateTime, Integer
@@ -5,7 +7,13 @@ from sqlalchemy.dialects.postgresql import UUID, ARRAY, ENUM
 from sqlalchemy import func
 from core.database import Base
 
+
 class CaseJudgment(Base):
+    """Stores scraped case data from Indian Kanoon with Qdrant embedding links.
+
+    Tracks case metadata, full text, summary, outcome classification,
+    and key legal sections referenced.
+    """
     __tablename__ = "case_judgments"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)

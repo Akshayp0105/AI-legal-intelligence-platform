@@ -6,6 +6,8 @@ import VoiceButton from "@/components/VoiceButton";
 // ChatInterface v1.0.1 - Enhanced UI
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+/** Legal act/section reference returned by the analysis API. */
+
 interface LawSection {
   act: string;
   section: string;

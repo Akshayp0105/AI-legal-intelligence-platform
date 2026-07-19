@@ -1,6 +1,7 @@
 // Case store v1.0.1 - Enhanced state management
 import { create } from 'zustand'
 
+/** Analysis result data structure returned by the legal analysis API. */
 export interface AnalysisResult {
   overview: string
   laws: Array<{ section: string; description: string }>
@@ -10,6 +11,7 @@ export interface AnalysisResult {
   strengthScore: number
 }
 
+/** Internal state shape for the case analysis Zustand store. */
 interface CaseState {
   currentCaseId: string | null
   analysisResult: AnalysisResult | null
@@ -17,6 +19,7 @@ interface CaseState {
   updateAnalysisScore: (score: number) => void
 }
 
+/** Zustand store for managing case analysis state across the dashboard. */
 export const useCaseStore = create<CaseState>((set) => ({
   currentCaseId: null,
   analysisResult: null,

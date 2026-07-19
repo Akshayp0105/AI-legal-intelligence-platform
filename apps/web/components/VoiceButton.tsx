@@ -4,6 +4,7 @@
 import { useSpeechToText, RecordingState } from "@/hooks/useSpeechToText";
 import { useRef, useEffect } from "react";
 
+/** Props for the VoiceButton component. */
 interface VoiceButtonProps {
   onTranscript: (text: string) => void;
   language?: string;
@@ -11,6 +12,7 @@ interface VoiceButtonProps {
   "aria-label"?: string;
 }
 
+/** Voice input button with waveform visualization, live transcript, and keyboard shortcuts. */
 export default function VoiceButton({
   onTranscript,
   language = "en-IN",

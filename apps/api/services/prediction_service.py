@@ -1,4 +1,10 @@
-# Prediction service v1.0.1 - Enhanced scoring
+"""Case strength prediction service.
+
+Analyzes case descriptions against similar historical cases from Qdrant,
+then uses Gemini to generate structured strength scores with confidence
+levels, risk factors, and strategy suggestions.
+"""
+
 import json
 import logging
 import google.generativeai as genai
@@ -8,8 +14,11 @@ from services.rag.retriever import qdrant_search
 
 logger = logging.getLogger(__name__)
 
+
 def get_gemini_model():
+    """Return a configured Gemini generative model instance."""
     return genai.GenerativeModel("gemini-2.0-flash-001")
+
 
 async def predict_case_strength(request: PredictionRequest) -> dict:
     # 1. Fetch similar cases from Qdrant

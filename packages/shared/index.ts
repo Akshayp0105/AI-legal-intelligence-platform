@@ -1,5 +1,7 @@
+/** Current API version identifier. */
 export const API_VERSION = "1.2.0";
 
+/** Supported legal domain categories for case classification. */
 export const DOMAINS = [
   "criminal",
   "corporate",
@@ -13,8 +15,10 @@ export const DOMAINS = [
   "general",
 ] as const;
 
+/** Union type of all supported legal domain values. */
 export type LegalDomain = (typeof DOMAINS)[number];
 
+/** Complete analysis result returned by the legal analysis API. */
 export interface AnalysisResult {
   conversational_reply: string;
   domain: LegalDomain;
@@ -30,6 +34,7 @@ export interface AnalysisResult {
   disclaimer: string;
 }
 
+/** A single applicable law/section reference from the analysis. */
 export interface ApplicableLaw {
   act: string;
   section: string;
@@ -37,6 +42,7 @@ export interface ApplicableLaw {
   relevance: number;
 }
 
+/** Case metadata as stored and displayed in the dashboard. */
 export interface Case {
   id: string;
   title: string;
@@ -48,12 +54,14 @@ export interface Case {
   created_at: string;
 }
 
+/** CSS classes mapped to case status values for badge rendering. */
 export const STATUS_COLORS: Record<string, string> = {
   active: "bg-green-100 text-green-800",
   under_review: "bg-yellow-100 text-yellow-800",
   closed: "bg-gray-100 text-gray-800",
 };
 
+/** CSS classes mapped to legal domain values for badge rendering. */
 export const DOMAIN_COLORS: Record<LegalDomain, string> = {
   criminal: "bg-red-100 text-red-800",
   corporate: "bg-blue-100 text-blue-800",

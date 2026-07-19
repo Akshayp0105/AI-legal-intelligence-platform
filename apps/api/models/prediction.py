@@ -1,9 +1,17 @@
+"""SQLAlchemy model for storing case strength predictions."""
+
 import uuid
 from sqlalchemy import Column, String, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from core.database import Base
 
+
 class CasePrediction(Base):
+    """Stores prediction results with deduplication via case description hash.
+
+    Results are stored as JSONB containing scores, factors, and
+    strategy suggestions from the prediction service.
+    """
     __tablename__ = "case_predictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

@@ -1,3 +1,10 @@
+"""Gemini embedding API wrapper.
+
+Provides batched document embedding and single query embedding
+using Google's text-embedding-004 model, with lazy API key
+configuration.
+"""
+
 import os
 import google.generativeai as genai
 from typing import List

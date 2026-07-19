@@ -1,3 +1,10 @@
+"""CLI script for loading IPC sections into the RAG pipeline.
+
+Reads legal data from JSON files, chunks statutes, generates
+embeddings, indexes into Qdrant, and stores in PostgreSQL.
+Supports argparse CLI invocation for batch data loading.
+"""
+
 import asyncio
 import json
 import os

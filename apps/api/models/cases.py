@@ -1,3 +1,5 @@
+"""SQLAlchemy models for case and message management."""
+
 import uuid
 from datetime import datetime
 from sqlalchemy import String, Integer, Text, DateTime, ForeignKey, func
@@ -7,6 +9,11 @@ from core.database import Base
 
 
 class Case(Base):
+    """Represents a legal case tied to a user session.
+
+    Tracks domain, status, strength score, summary, and applicable laws.
+    One session maps to one active case following the conversation model.
+    """
     __tablename__ = "cases"
 
     id:             Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -28,6 +35,11 @@ class Case(Base):
 
 
 class Message(Base):
+    """Represents a single message within a case conversation.
+
+    Stores the message role, content, optional analysis JSON,
+    and is linked to a parent Case via foreign key.
+    """
     __tablename__ = "messages"
 
     id:         Mapped[uuid.UUID]    = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

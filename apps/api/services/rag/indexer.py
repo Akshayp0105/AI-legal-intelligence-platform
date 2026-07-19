@@ -1,3 +1,9 @@
+"""Qdrant vector indexing for legal knowledge chunks.
+
+Upserts vectors with metadata payloads into the Qdrant
+'legal_knowledge' collection and provides verification utilities.
+"""
+
 import logging
 import uuid
 from qdrant_client.http.models import PointStruct

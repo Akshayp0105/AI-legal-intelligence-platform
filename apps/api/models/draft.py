@@ -1,9 +1,17 @@
+"""SQLAlchemy model for storing generated legal document drafts."""
+
 import uuid
 from sqlalchemy import Column, String, DateTime, ForeignKey, func, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from core.database import Base
 
+
 class Draft(Base):
+    """Stores generated legal document drafts linked to a user.
+
+    Contains the document type, content as JSON, and an optional
+    DOCX download URL.
+    """
     __tablename__ = "drafts"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

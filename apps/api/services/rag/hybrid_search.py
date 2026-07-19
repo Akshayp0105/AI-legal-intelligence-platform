@@ -1,3 +1,10 @@
+"""Hybrid search combining vector and full-text search.
+
+Merges Qdrant vector similarity search with PostgreSQL full-text
+search, normalizes scores, deduplicates results, and re-ranks
+using Gemini for optimal relevance.
+"""
+
 import logging
 import json
 import google.generativeai as genai
@@ -76,6 +83,10 @@ async def pg_fulltext_search(
         return []
 
 def normalize_scores(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Normalize result scores to 0-1 range using min-max scaling.
+
+    Adds a 'normalized_score' key to each result dict.
+    """
     if not results:
         return []
     max_score = max([r["score"] for r in results])

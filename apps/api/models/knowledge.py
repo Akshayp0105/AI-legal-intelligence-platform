@@ -1,9 +1,17 @@
+"""SQLAlchemy model for the legal knowledge base with full-text search."""
+
 import uuid
 from sqlalchemy import Column, String, Integer, Text, DateTime, func, Index
 from sqlalchemy.dialects.postgresql import UUID, TSVECTOR
 from core.database import Base
 
+
 class LegalKnowledge(Base):
+    """Stores chunked legal text with metadata for RAG retrieval.
+
+    Includes a TSVECTOR column with a GIN index for PostgreSQL
+    full-text search alongside Qdrant vector search.
+    """
     __tablename__ = "legal_knowledge"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

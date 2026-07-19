@@ -1,3 +1,10 @@
+"""Legal argument generation service.
+
+Uses Gemini AI to generate structured legal arguments for plaintiff
+and defendant sides, ordered by strength, with legal basis citations
+and counter-argument awareness.
+"""
+
 import json
 import logging
 import google.generativeai as genai

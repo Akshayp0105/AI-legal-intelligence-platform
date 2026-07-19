@@ -1,3 +1,10 @@
+"""Text splitting utilities for legal document chunking.
+
+Provides token-aware text splitting using tiktoken and LangChain's
+RecursiveCharacterTextSplitter, with specialized chunking for
+statutes that preserves section and act context.
+"""
+
 import tiktoken
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from core.logging import get_logger

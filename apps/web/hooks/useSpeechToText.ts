@@ -3,7 +3,10 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 
+/** Possible states of the speech recording lifecycle. */
 export type RecordingState = "idle" | "recording" | "processing" | "error";
+
+/** Configuration options for the speech-to-text hook. */
 
 interface UseSpeechToTextOptions {
   language?: string;           // "en-IN" | "ml-IN" | "hi-IN"
@@ -12,6 +15,7 @@ interface UseSpeechToTextOptions {
   onError?: (error: string) => void;
 }
 
+/** Return type exposing recording controls, state, and audio level for waveform animation. */
 interface UseSpeechToTextReturn {
   recordingState: RecordingState;
   interimTranscript: string;
@@ -22,6 +26,7 @@ interface UseSpeechToTextReturn {
   audioLevel: number;         // 0-100, for animation
 }
 
+/** Custom React hook wrapping the Web Speech Recognition API with audio level analysis. */
 export function useSpeechToText({
   language = "en-IN",
   onTranscript,

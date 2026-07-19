@@ -1,3 +1,9 @@
+"""RAG (Retrieval-Augmented Generation) indexing orchestrator.
+
+Coordinates the pipeline of chunking document text, generating
+embeddings, and storing vectors in Qdrant for semantic search.
+"""
+
 import logging
 from services.rag.chunker import get_text_splitter
 from services.rag.embedder import get_embeddings

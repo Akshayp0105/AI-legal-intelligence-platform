@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import { UploadCloud, FileText, CheckCircle, Loader2, X } from "lucide-react";
 
+/** Metadata for an uploaded document including upload progress and status. */
+
 interface UploadedDoc {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ interface UploadedDoc {
   progress: number;
 }
 
+/** Document upload component with drag-and-drop, progress tracking, and OCR status display. */
 export default function DocumentUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [documents, setDocuments] = useState<UploadedDoc[]>([]);

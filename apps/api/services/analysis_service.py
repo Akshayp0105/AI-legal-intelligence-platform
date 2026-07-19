@@ -1,3 +1,11 @@
+"""Core legal analysis service.
+
+Detects the legal domain of a user query via keyword scoring, builds
+domain-specific system and user prompts, calls Google Gemini for
+analysis, and returns structured JSON results with laws, steps, and rights.
+Supports both standard and SSE streaming responses.
+"""
+
 # Analysis service v1.0.1 - Enhanced domain detection
 import asyncio, json, logging, os, hashlib
 from typing import AsyncGenerator, List, Dict, Any, Optional, Tuple
@@ -67,6 +75,11 @@ def detect_domain(message: str, history: List[Dict[str, str]]) -> str:
 
 
 def build_prompt(message: str, domain: str, history: List[Dict[str, str]], language: str, user_role: str) -> Tuple[str, str]:
+    """Build system and user prompts tailored to the detected legal domain.
+
+    Incorporates domain-specific acts, role-appropriate language,
+    and conversation history to produce a structured JSON response.
+    """
     acts = "\n".join(f"  • {a}" for a in DOMAIN_ACTS.get(domain, DOMAIN_ACTS["general"]))
     role = DOMAIN_ROLES.get(domain, DOMAIN_ROLES["general"])
 

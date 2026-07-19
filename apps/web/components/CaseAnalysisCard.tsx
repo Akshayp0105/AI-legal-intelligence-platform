@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCaseStore } from "../store/useCaseStore";
 import { Scale, BookOpen, AlertCircle, TrendingUp, ChevronDown, ChevronUp, Swords } from "lucide-react";
 
+/** Displays a tabbed case analysis card with strength gauge, laws, precedents, and arguments. */
 export default function CaseAnalysisCard() {
   const { analysisResult } = useCaseStore();
   const [activeTab, setActiveTab] = useState<"overview" | "laws" | "precedents" | "arguments">("overview");

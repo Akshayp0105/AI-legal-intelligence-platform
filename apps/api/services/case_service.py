@@ -1,3 +1,9 @@
+"""Case and message management service.
+
+Handles case creation, message persistence, session-level statistics,
+and case status updates in PostgreSQL using async SQLAlchemy.
+"""
+
 # Case service v1.0.1 - Improved title generation
 import uuid, re
 from sqlalchemy.ext.asyncio import AsyncSession

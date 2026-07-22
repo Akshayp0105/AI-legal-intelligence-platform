@@ -66,3 +66,6 @@ test_result.json
 
 # Gemini
 .gemini/
+
+# Docker
+docker-compose.override.yml

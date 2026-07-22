@@ -12,5 +12,6 @@
   "jsxSingleQuote": false,
   "htmlWhitespaceSensitivity": "css",
   "proseWrap": "preserve",
-  "embeddedLanguageFormatting": "auto"
+  "embeddedLanguageFormatting": "auto",
+  "singleAttributePerLine": false
 }

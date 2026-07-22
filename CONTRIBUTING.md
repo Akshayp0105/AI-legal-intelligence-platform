@@ -148,3 +148,7 @@ Use conventional commits:
 ## Questions?
 
 Open an issue on GitHub for any questions or discussions.
+
+---
+
+*Last updated: 2026-07-22*

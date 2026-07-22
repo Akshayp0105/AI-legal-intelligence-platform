@@ -45,8 +45,7 @@ export async function POST(req: Request) {
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     }) as WebhookEvent
-  } catch (err) {
-    console.error('Error verifying webhook:', err)
+  } catch {
     return new Response('Error occured', {
       status: 400
     })
@@ -66,18 +65,14 @@ export async function POST(req: Request) {
         ON CONFLICT (clerk_id) DO NOTHING;
       `
       await pool.query(query, [id, primaryEmail, name])
-      console.log(`User ${id} synced to database.`)
-    } catch (error) {
-      console.error('Database insertion error:', error)
+    } catch {
       return new Response('Database error', { status: 500 })
     }
   } else if (eventType === 'user.deleted') {
     const { id } = evt.data
     try {
       await pool.query(`DELETE FROM users WHERE clerk_id = $1`, [id])
-      console.log(`User ${id} deleted from database.`)
-    } catch (error) {
-      console.error('Database deletion error:', error)
+    } catch {
       return new Response('Database error', { status: 500 })
     }
   }

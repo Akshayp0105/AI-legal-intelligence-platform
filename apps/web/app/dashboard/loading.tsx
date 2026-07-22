@@ -1,6 +1,8 @@
 export default function DashboardLoading() {
   return (
     <div
+      role="status"
+      aria-label="Loading dashboard"
       style={{
         display: 'flex',
         alignItems: 'center',

@@ -1,4 +1,3 @@
-// Settings v1.0.1 - Enhanced options
 "use client";
 
 import { useUser, useClerk } from "@clerk/nextjs";
@@ -22,7 +21,7 @@ export default function SettingsPage() {
         <div className="bg-card border border-border rounded-xl p-6 mb-6 shadow-sm">
           <div className="flex items-center gap-4">
             {user?.imageUrl ? (
-              <img src={user.imageUrl} alt="avatar" className="w-16 h-16 rounded-full border-2 border-accent" />
+              <img src={user.imageUrl} alt={`${user.firstName ?? "User"}'s avatar`} className="w-16 h-16 rounded-full border-2 border-accent" />
             ) : (
               <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-primary-foreground">
                 {user?.firstName?.[0] ?? "U"}

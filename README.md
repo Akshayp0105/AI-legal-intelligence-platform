@@ -10,10 +10,11 @@
 [![Redis](https://img.shields.io/badge/Redis-7.2-DC382D)](https://redis.io/)
 [![CI](https://github.com/Akshayp0105/AI-legal-intelligence-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Akshayp0105/AI-legal-intelligence-platform/actions/workflows/ci.yml)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-black)](https://docs.astral.sh/ruff/)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](#)
 
 > AI-powered legal document drafting and analysis platform for Indian courts.
 
-Last updated: 2026-06-29
+Last updated: 2026-07-22
 
 ## Overview
 

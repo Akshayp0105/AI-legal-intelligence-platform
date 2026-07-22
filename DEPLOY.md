@@ -147,3 +147,5 @@ Use a load balancer (nginx, HAProxy) in front of multiple API instances.
 | Qdrant connection refused | Check Qdrant container is running |
 | Clerk auth failing | Verify environment variables |
 | High memory usage | Reduce pool_size or add workers |
+| API not starting | Check logs with `docker compose logs api` |
+| Web build failing | Clear node_modules and reinstall |

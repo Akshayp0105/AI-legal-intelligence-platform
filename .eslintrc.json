@@ -7,6 +7,7 @@
     "no-explicit-any": "warn",
     "no-console": "warn",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-require-imports": "off"
+    "@typescript-eslint/no-require-imports": "off",
+    "prefer-const": "error"
   }
 }

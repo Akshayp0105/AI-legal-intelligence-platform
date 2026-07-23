@@ -48,3 +48,7 @@ test_result.json
 
 # Gemini
 .gemini
+
+# Documentation
+docs/
+*.md

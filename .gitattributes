@@ -46,3 +46,6 @@ docker-compose.yml text
 *.cmd text eol=crlf
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+
+# SQL files
+*.sql text

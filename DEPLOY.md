@@ -118,6 +118,7 @@ curl https://yourdomain.com/api/pool
 - **API Health:** `GET /health` - returns status of all dependencies
 - **Pool Status:** `GET /api/pool` - database connection pool metrics
 - **API Info:** `GET /api/info` - version and metadata
+- **Metrics:** `GET /metrics` - Prometheus metrics endpoint
 
 ## Backup
 

@@ -14,7 +14,7 @@
 
 > AI-powered legal document drafting and analysis platform for Indian courts.
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Overview
 

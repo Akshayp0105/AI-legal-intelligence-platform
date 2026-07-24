@@ -111,6 +111,12 @@ legal_ai/
 - Keep components under 300 lines
 - Run `npm run lint` and `npx tsc --noEmit` before committing
 
+### General
+
+- Write meaningful commit messages
+- Keep PRs focused on a single change
+- Add comments for complex logic
+
 ## Testing
 
 ### API Tests

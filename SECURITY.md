@@ -52,3 +52,4 @@ LexAI uses Clerk for authentication. Ensure:
 - File uploads are validated and sanitized
 - User inputs are validated using Pydantic schemas
 - Rate limiting is enabled to prevent abuse
+- Sensitive data is encrypted at rest

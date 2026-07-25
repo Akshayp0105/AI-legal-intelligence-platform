@@ -11,6 +11,8 @@
 
 If you discover a security vulnerability within LexAI, please send an email to the project maintainers. All security vulnerabilities will be promptly addressed.
 
+**Email:** security@lexai.dev
+
 **Please do not report security vulnerabilities through public GitHub issues.**
 
 ### What to include

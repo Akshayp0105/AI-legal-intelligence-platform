@@ -151,4 +151,4 @@ Open an issue on GitHub for any questions or discussions.
 
 ---
 
-*Last updated: 2026-07-22*
+*Last updated: 2026-07-25*

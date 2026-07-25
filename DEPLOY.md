@@ -7,6 +7,7 @@ This guide covers deploying LexAI to production.
 - Docker and Docker Compose v2+
 - A domain name with SSL certificates
 - API keys for: Gemini, Clerk, Supabase
+- Minimum 2GB RAM for production workloads
 
 ## Environment Variables
 

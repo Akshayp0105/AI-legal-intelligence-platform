@@ -30,6 +30,7 @@ LexAI provides AI-powered legal services for the Indian legal system, including 
 - **Case Strength Prediction** - Score cases on multiple factors
 - **Document Drafting** - Generate legal notices, FIRs, bail applications, and more
 - **Real-time Streaming** - SSE-based streaming responses
+- **Export Options** - Download as PDF, DOCX, or plain text
 
 ## Tech Stack
 
